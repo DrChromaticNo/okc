@@ -1,6 +1,7 @@
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Date;
+import controlP5.*;
 
 public enum Gender {WOMAN, MAN, AGENDER, ANDROGYNOUS, 
                     BIGENDER, CIS_MAN, CIS_WOMAN, GENDERFLUID,
@@ -36,7 +37,7 @@ public enum Sign {AQUARIUS, PISCES, ARIES, TAURUS,
 public enum Education {HIGH_SCHOOL, TWO_YEAR_COLLEGE, UNIVERSITY,
                        POST_GRAD};   
                        
-public enum RelationshipType {STRICTLY_MONOGAMOUS, MOSTLY_MONOGAMOUS, STRICTLY_NONMONOGAMOUS, MOSTLY_NONMONOGAMOUS};
+public enum RelationshipType {STRICTLY_MONOGAMOUS, MOSTLY_MONOGAMOUS, STRICTLY_NONMONOGAMOUS, MOSTLY_NONMONOGAMOUS};           
                     
 class Demographics
 {
@@ -63,11 +64,115 @@ class Demographics
   
   private Education education;
   
-  public Demographics()
+  private String prefix;
+  
+  private final int MIN_WIDTH = 600;
+  private final int MIN_HEIGHT = 300;
+
+  public HashMap<Gender,String> genderToString = new HashMap<Gender,String>();
+  public HashMap<String,Gender> stringToGender = new HashMap<String,Gender>();         
+  
+  public Demographics(String prefix)
   {
     gender = new HashSet(5);
     orientation = new HashSet(5);
     ethnicity = new HashSet(Ethnicity.values().length);
+    this.prefix = prefix;
+    
+    genderToString.put(Gender.WOMAN, "Woman");
+    genderToString.put(Gender.MAN, "Man");
+    genderToString.put(Gender.AGENDER, "Agender");
+    genderToString.put(Gender.ANDROGYNOUS, "Androgynous");
+    genderToString.put(Gender.BIGENDER, "Bigender");
+    genderToString.put(Gender.CIS_MAN, "Cis Man");
+    genderToString.put(Gender.CIS_WOMAN, "Cis Woman");
+    genderToString.put(Gender.GENDERFLUID, "Genderfluid");
+    genderToString.put(Gender.GENDERQUEER, "Genderqueer");
+    genderToString.put(Gender.GENDER_NONCONFORMING, "Gender Nonconforming");
+    genderToString.put(Gender.HIJRA, "Hijra");
+    genderToString.put(Gender.INTERSEX, "Intersex");
+    genderToString.put(Gender.NON_BINARY, "Non-Binary");
+    genderToString.put(Gender.OTHER, "Other");
+    genderToString.put(Gender.PANGENDER, "Pangender");
+    genderToString.put(Gender.TRANSFEMININE, "Transfeminine");
+    genderToString.put(Gender.TRANSGENDER, "Transgender");
+    genderToString.put(Gender.TRANSMASCULINE, "Transmasculine");
+    genderToString.put(Gender.TRANS_MAN, "Trans Man");
+    genderToString.put(Gender.TRANS_WOMAN, "Trans Woman");
+    genderToString.put(Gender.TWO_SPIRIT, "Two Spirit");
+    
+    stringToGender.put("Woman", Gender.WOMAN);
+    stringToGender.put("Man", Gender.MAN);
+    stringToGender.put("Agender", Gender.AGENDER);
+    stringToGender.put("Androgynous", Gender.ANDROGYNOUS);
+    stringToGender.put("Bigender", Gender.BIGENDER);
+    stringToGender.put("Cis Man", Gender.CIS_MAN);
+    stringToGender.put("Cis Woman", Gender.CIS_WOMAN);
+    stringToGender.put("Genderfluid", Gender.GENDERFLUID);
+    stringToGender.put("Genderqueer", Gender.GENDERQUEER);
+    stringToGender.put("Gender Nonconforming", Gender.GENDER_NONCONFORMING);
+    stringToGender.put("Hijra", Gender.HIJRA);
+    stringToGender.put("Intersex", Gender.INTERSEX);
+    stringToGender.put("Non-Binary", Gender.NON_BINARY);
+    stringToGender.put("Other", Gender.OTHER);
+    stringToGender.put("Pangender", Gender.PANGENDER);
+    stringToGender.put("Transfeminine", Gender.TRANSFEMININE);
+    stringToGender.put("Transgender", Gender.TRANSGENDER);
+    stringToGender.put("Transmasculine", Gender.TRANSMASCULINE);
+    stringToGender.put("Trans Man", Gender.TRANS_MAN);
+    stringToGender.put("Trans Woman", Gender.TRANS_WOMAN);
+    stringToGender.put("Two Spirit", Gender.TWO_SPIRIT);
+    
+  }
+  
+  public void drawAt(int x, int y, PFont TEXT_FONT)
+  {
+    int d_width = MIN_WIDTH;
+    int d_height = MIN_HEIGHT;
+    
+    rect(x, y, d_width, d_height);
+    
+    int disp_x = x+5;
+    int disp_y = y+15;
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(LEFT);
+    
+    String genderDescription = "I am:";
+    
+    for(Gender g:gender)
+    {
+      genderDescription = genderDescription + " " + genderToString.get(g) + ",";
+    }
+    //Remove final comma
+    if(genderDescription.charAt(genderDescription.length()-1) == ',')
+    {
+      genderDescription = genderDescription
+        .substring(0,genderDescription.length()-1);
+    }
+    
+    text(genderDescription, disp_x, disp_y);
+    
+    disp_x = disp_x;
+    disp_y = disp_y+15;
+    
+    if(cp5.get(ScrollableList.class, prefix+"Gender") == null)
+    {
+      cp5.addScrollableList(prefix + "Gender")
+      .setPosition(disp_x, disp_y)
+      .setBarHeight(20)
+      .setItemHeight(20)
+      .addItems(genderToString.values().toArray(new String[0]))
+      .setType(ScrollableList.LIST)
+      .setLabel("Gender");
+    }
+    else
+    {
+      cp5.get(ScrollableList.class, prefix+"Gender").setPosition(disp_x, disp_y);
+    }
+    
+    fill(255);
   }
   
   public Set<Gender> getGenders()
@@ -252,4 +357,23 @@ class Demographics
   {
     education = educate;
   }
+}
+
+void demoGender(int n)
+{ //<>//
+  Gender selectedGender = demo.stringToGender.get(
+                          cp5.get(ScrollableList.class, "demoGender")
+                             .getItem(n).get("name"));
+  
+  Set<Gender> genders = demo.getGenders();
+  
+  if(genders.contains(selectedGender))
+  {
+    demo.removeGender(selectedGender);
+  }
+  else
+  {
+    demo.addGender(selectedGender);
+  }
+   //<>//
 }
