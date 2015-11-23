@@ -14,8 +14,8 @@ public enum Orientation {STRAIGHT, GAY, BISEXUAL, ASEXUAL,
                         DEMISEXUAL, HETEROFLEXIBLE, LESBIAN, PANSEXUAL,
                         QUEER, QUESTIONING, SAPIOSEXUAL};
                         
-public enum Ethnicity {ASIAN, NATIVEAMERICAN, INDIAN,
-                       MIDDLEASTERN, HISPANIC_LATIN, WHITE,
+public enum Ethnicity {ASIAN, NATIVE_AMERICAN, INDIAN,
+                       MIDDLE_EASTERN, HISPANIC_LATIN, WHITE,
                        BLACK, PACIFIC_ISLANDER, OTHER};
                        
 public enum BodyType {RATHER_NOT_SAY, THIN, OVERWEIGHT, SKINNY,
@@ -70,7 +70,13 @@ class Demographics
   private final int MIN_HEIGHT = 300;
 
   public HashMap<Gender,String> genderToString = new HashMap<Gender,String>();
-  public HashMap<String,Gender> stringToGender = new HashMap<String,Gender>();         
+  public HashMap<String,Gender> stringToGender = new HashMap<String,Gender>();
+  
+  public HashMap<Orientation,String> orientationToString = new HashMap<Orientation,String>();
+  public HashMap<String,Orientation> stringToOrientation = new HashMap<String,Orientation>();
+  
+  public HashMap<Ethnicity,String> ethnicityToString = new HashMap<Ethnicity,String>();
+  public HashMap<String,Ethnicity> stringToEthnicity = new HashMap<String,Ethnicity>();  
   
   public Demographics(String prefix)
   {
@@ -123,6 +129,50 @@ class Demographics
     stringToGender.put("Trans Woman", Gender.TRANS_WOMAN);
     stringToGender.put("Two Spirit", Gender.TWO_SPIRIT);
     
+    orientationToString.put(Orientation.STRAIGHT,"Straight");
+    orientationToString.put(Orientation.GAY,"Gay");
+    orientationToString.put(Orientation.BISEXUAL,"Bisexual");
+    orientationToString.put(Orientation.ASEXUAL,"Asexual");
+    orientationToString.put(Orientation.DEMISEXUAL,"Demisexual");
+    orientationToString.put(Orientation.HETEROFLEXIBLE,"Heteroflexible");
+    orientationToString.put(Orientation.LESBIAN,"Lesbian");
+    orientationToString.put(Orientation.PANSEXUAL,"Pansexual");
+    orientationToString.put(Orientation.QUEER,"Queer");
+    orientationToString.put(Orientation.QUESTIONING,"Questioning");
+    orientationToString.put(Orientation.SAPIOSEXUAL,"Sapiosexual");
+    
+    stringToOrientation.put("Straight",Orientation.STRAIGHT);
+    stringToOrientation.put("Gay",Orientation.GAY);
+    stringToOrientation.put("Bisexual",Orientation.BISEXUAL);
+    stringToOrientation.put("Asexual",Orientation.ASEXUAL);
+    stringToOrientation.put("Demisexual",Orientation.DEMISEXUAL);
+    stringToOrientation.put("Heteroflexible",Orientation.HETEROFLEXIBLE);
+    stringToOrientation.put("Lesbian",Orientation.LESBIAN);
+    stringToOrientation.put("Pansexual",Orientation.PANSEXUAL);
+    stringToOrientation.put("Queer",Orientation.QUEER);
+    stringToOrientation.put("Questioning",Orientation.QUESTIONING);
+    stringToOrientation.put("Sapiosexual",Orientation.SAPIOSEXUAL);
+    
+    ethnicityToString.put(Ethnicity.ASIAN,"Asian");
+    ethnicityToString.put(Ethnicity.NATIVE_AMERICAN,"Native American");
+    ethnicityToString.put(Ethnicity.INDIAN,"Indian");
+    ethnicityToString.put(Ethnicity.MIDDLE_EASTERN,"Middle Eastern");
+    ethnicityToString.put(Ethnicity.HISPANIC_LATIN,"Hispanic/Latin");
+    ethnicityToString.put(Ethnicity.WHITE,"White");
+    ethnicityToString.put(Ethnicity.BLACK,"Black");
+    ethnicityToString.put(Ethnicity.PACIFIC_ISLANDER,"Pacific Islander");
+    ethnicityToString.put(Ethnicity.OTHER,"Other");
+    
+    stringToEthnicity.put("Asian",Ethnicity.ASIAN);
+    stringToEthnicity.put("Native American",Ethnicity.NATIVE_AMERICAN);
+    stringToEthnicity.put("Indian",Ethnicity.INDIAN);
+    stringToEthnicity.put("Middle Eastern",Ethnicity.MIDDLE_EASTERN);
+    stringToEthnicity.put("Hispanic/Latin",Ethnicity.HISPANIC_LATIN);
+    stringToEthnicity.put("White",Ethnicity.WHITE);
+    stringToEthnicity.put("Black",Ethnicity.BLACK);
+    stringToEthnicity.put("Pacific Islander",Ethnicity.PACIFIC_ISLANDER);
+    stringToEthnicity.put("Other",Ethnicity.OTHER);
+
   }
   
   public void drawAt(int x, int y, PFont TEXT_FONT)
@@ -131,6 +181,10 @@ class Demographics
     int d_height = MIN_HEIGHT;
     
     rect(x, y, d_width, d_height);
+    
+    
+    //Gender
+    
     
     int disp_x = x+5;
     int disp_y = y+15;
@@ -154,8 +208,8 @@ class Demographics
     
     text(genderDescription, disp_x, disp_y);
     
-    disp_x = disp_x;
-    disp_y = disp_y+15;
+    disp_x = disp_x + (int) textWidth(genderDescription) + 5; 
+    disp_y = disp_y - 10;
     
     if(cp5.get(ScrollableList.class, prefix+"Gender") == null)
     {
@@ -165,11 +219,129 @@ class Demographics
       .setItemHeight(20)
       .addItems(genderToString.values().toArray(new String[0]))
       .setType(ScrollableList.LIST)
-      .setLabel("Gender");
+      .setLabel("Gender")
+      .setOpen(false);
     }
     else
     {
       cp5.get(ScrollableList.class, prefix+"Gender").setPosition(disp_x, disp_y);
+    }
+    
+    
+    //Age
+    
+    
+    disp_x = x+5; 
+    disp_y = disp_y+35;
+    
+    String ageDescription = "Age:";
+    
+    if(age > 0)
+    {
+      ageDescription = ageDescription + " " + age;
+    }
+    
+    text(ageDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(ageDescription) + 5;
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(Textfield.class, prefix+"Age") == null)
+    {
+      cp5.addTextfield(prefix + "Age")
+         .setPosition(disp_x,disp_y)
+         .setSize(20,20)
+         .setFont(TEXT_FONT)
+         .setLabel("");
+    }
+    else
+    {
+      cp5.get(Textfield.class, prefix+"Age").setPosition(disp_x, disp_y);
+    }
+    
+    
+    //Orientation
+    
+    
+    String orientationDescription = "Orientation:";
+    
+    for(Orientation o:orientation)
+    {
+      orientationDescription = orientationDescription + " " + orientationToString.get(o) + ",";
+    }
+    
+    //Remove final comma
+    if(orientationDescription.charAt(orientationDescription.length()-1) == ',')
+    {
+      orientationDescription = orientationDescription
+        .substring(0,orientationDescription.length()-1);
+    }
+    
+    disp_x = x+5; 
+    disp_y = disp_y+35;
+    
+    text(orientationDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(orientationDescription) + 5; 
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(ScrollableList.class, prefix+"Orientation") == null)
+    {
+      cp5.addScrollableList(prefix + "Orientation")
+      .setPosition(disp_x, disp_y)
+      .setBarHeight(20)
+      .setItemHeight(20)
+      .addItems(orientationToString.values().toArray(new String[0]))
+      .setType(ScrollableList.LIST)
+      .setLabel("Orientation")
+      .setOpen(false);
+    }
+    else
+    {
+      cp5.get(ScrollableList.class, prefix+"Orientation").setPosition(disp_x, disp_y);
+    }
+    
+    
+    
+    //Ethnicity
+    
+    
+    String ethnicityDescription = "Ethnicity:";
+    
+    for(Ethnicity e:ethnicity)
+    {
+      ethnicityDescription = ethnicityDescription + " " + ethnicityToString.get(e) + ",";
+    }
+    
+    //Remove final comma
+    if(ethnicityDescription.charAt(ethnicityDescription.length()-1) == ',')
+    {
+      ethnicityDescription = ethnicityDescription
+        .substring(0,ethnicityDescription.length()-1);
+    }
+    
+    disp_x = x+5; 
+    disp_y = disp_y+35;
+    
+    text(ethnicityDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(ethnicityDescription) + 5; 
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(ScrollableList.class, prefix+"Ethnicity") == null)
+    {
+      cp5.addScrollableList(prefix + "Ethnicity")
+      .setPosition(disp_x, disp_y)
+      .setBarHeight(20)
+      .setItemHeight(20)
+      .addItems(ethnicityToString.values().toArray(new String[0]))
+      .setType(ScrollableList.LIST)
+      .setLabel("Ethnicity")
+      .setOpen(false);
+    }
+    else
+    {
+      cp5.get(ScrollableList.class, prefix+"Ethnicity").setPosition(disp_x, disp_y);
     }
     
     fill(255);
@@ -376,4 +548,56 @@ void demoGender(int n)
     demo.addGender(selectedGender);
   }
    //<>//
+}
+
+void demoOrientation(int n)
+{
+  Orientation selectedOrientation = demo.stringToOrientation.get(
+                          cp5.get(ScrollableList.class, "demoOrientation")
+                             .getItem(n).get("name"));
+  
+  Set<Orientation> orientations = demo.getOrientations();
+  
+  if(orientations.contains(selectedOrientation))
+  {
+    demo.removeOrientation(selectedOrientation);
+  }
+  else
+  {
+    demo.addOrientation(selectedOrientation);
+  }
+  
+}
+
+void demoEthnicity(int n)
+{
+  Ethnicity selectedEthnicity = demo.stringToEthnicity.get(
+                          cp5.get(ScrollableList.class, "demoEthnicity")
+                             .getItem(n).get("name"));
+  
+  Set<Ethnicity> ethnicities = demo.getEthnicities();
+  
+  if(ethnicities.contains(selectedEthnicity))
+  {
+    demo.removeEthnicity(selectedEthnicity);
+  }
+  else
+  {
+    demo.addEthnicity(selectedEthnicity);
+  }
+  
+}
+
+void demoAge(String theText)
+{
+  int age = -1;
+  try{
+    age = Integer.parseInt(theText);
+  }
+  catch(Exception e)
+  {
+    //Do nothing
+  }
+  
+  demo.setAge(age);
 }
