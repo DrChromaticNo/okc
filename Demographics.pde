@@ -76,7 +76,16 @@ class Demographics
   public HashMap<String,Orientation> stringToOrientation = new HashMap<String,Orientation>();
   
   public HashMap<Ethnicity,String> ethnicityToString = new HashMap<Ethnicity,String>();
-  public HashMap<String,Ethnicity> stringToEthnicity = new HashMap<String,Ethnicity>();  
+  public HashMap<String,Ethnicity> stringToEthnicity = new HashMap<String,Ethnicity>();
+  
+  public HashMap<RelationshipType,String> rtToString = new HashMap<RelationshipType,String>();
+  public HashMap<String,RelationshipType> stringToRT = new HashMap<String,RelationshipType>();
+  
+  public HashMap<BodyType,String> btToString = new HashMap<BodyType,String>();
+  public HashMap<String,BodyType> stringToBT = new HashMap<String,BodyType>();
+  
+  public HashMap<Religion,String> religionToString = new HashMap<Religion,String>();
+  public HashMap<String,Religion> stringToReligion = new HashMap<String,Religion>();
   
   public Demographics(String prefix)
   {
@@ -172,7 +181,65 @@ class Demographics
     stringToEthnicity.put("Black",Ethnicity.BLACK);
     stringToEthnicity.put("Pacific Islander",Ethnicity.PACIFIC_ISLANDER);
     stringToEthnicity.put("Other",Ethnicity.OTHER);
-
+    
+    rtToString.put(RelationshipType.STRICTLY_MONOGAMOUS,"Strictly Monogamous");
+    rtToString.put(RelationshipType.MOSTLY_MONOGAMOUS,"Mostly Monogamous");
+    rtToString.put(RelationshipType.STRICTLY_NONMONOGAMOUS,"Strictly Non-Monogamous");
+    rtToString.put(RelationshipType.MOSTLY_NONMONOGAMOUS,"Mostly Non-Monogamous");
+ 
+    stringToRT.put("Strictly Monogamous",RelationshipType.STRICTLY_MONOGAMOUS);
+    stringToRT.put("Mostly Monogamous",RelationshipType.MOSTLY_MONOGAMOUS);
+    stringToRT.put("Strictly Non-Monogamous",RelationshipType.STRICTLY_NONMONOGAMOUS);
+    stringToRT.put("Mostly Non-Monogamous",RelationshipType.MOSTLY_NONMONOGAMOUS);
+    
+    btToString.put(BodyType.RATHER_NOT_SAY,"Rather Not Say");
+    btToString.put(BodyType.THIN,"Thin");
+    btToString.put(BodyType.OVERWEIGHT,"Overweight");
+    btToString.put(BodyType.SKINNY,"Skinny");
+    btToString.put(BodyType.AVERAGE_BUILD,"Average Build");
+    btToString.put(BodyType.FIT,"Fit");
+    btToString.put(BodyType.ATHLETIC,"Athletic");
+    btToString.put(BodyType.JACKED,"Jacked");
+    btToString.put(BodyType.A_LITTLE_EXTRA,"A Little Extra");
+    btToString.put(BodyType.CURVY,"Curvy");
+    btToString.put(BodyType.FULL_FIGURED,"Full Figured");
+    btToString.put(BodyType.USED_UP,"Used Up");
+    
+    stringToBT.put("Rather Not Say",BodyType.RATHER_NOT_SAY);
+    stringToBT.put("Thin",BodyType.THIN);
+    stringToBT.put("Overweight",BodyType.OVERWEIGHT);
+    stringToBT.put("Skinny",BodyType.SKINNY);
+    stringToBT.put("Average Build",BodyType.AVERAGE_BUILD);
+    stringToBT.put("Fit",BodyType.FIT);
+    stringToBT.put("Athletic",BodyType.ATHLETIC);
+    stringToBT.put("Jacked",BodyType.JACKED);
+    stringToBT.put("A Little Extra",BodyType.A_LITTLE_EXTRA);
+    stringToBT.put("Curvy",BodyType.CURVY);
+    stringToBT.put("Full Figured",BodyType.FULL_FIGURED);
+    stringToBT.put("Used Up",BodyType.USED_UP);
+    
+    religionToString.put(Religion.AGNOSTICISM,"Agnosticism");
+    religionToString.put(Religion.ATHEISM,"Atheism");
+    religionToString.put(Religion.CHRISTIANITY,"Christianity");
+    religionToString.put(Religion.JUDAISM,"Judaism");
+    religionToString.put(Religion.CATHOLICISM,"Catholicism");
+    religionToString.put(Religion.ISLAM,"Islam");
+    religionToString.put(Religion.HINDUISM,"Hinduism");
+    religionToString.put(Religion.BUDDHISM,"Buddhism");
+    religionToString.put(Religion.SIKH,"Sikh");
+    religionToString.put(Religion.OTHER,"Other");
+    
+    stringToReligion.put("Agnosticism",Religion.AGNOSTICISM);
+    stringToReligion.put("Atheism",Religion.ATHEISM);
+    stringToReligion.put("Christianity",Religion.CHRISTIANITY);
+    stringToReligion.put("Judaism",Religion.JUDAISM);
+    stringToReligion.put("Catholicism",Religion.CATHOLICISM);
+    stringToReligion.put("Islam",Religion.ISLAM);
+    stringToReligion.put("Hinduism",Religion.HINDUISM);
+    stringToReligion.put("Buddhism",Religion.BUDDHISM);
+    stringToReligion.put("Sikh",Religion.SIKH);
+    stringToReligion.put("Other",Religion.OTHER);
+    
   }
   
   public void drawAt(int x, int y, PFont TEXT_FONT)
@@ -210,6 +277,8 @@ class Demographics
     
     disp_x = disp_x + (int) textWidth(genderDescription) + 5; 
     disp_y = disp_y - 10;
+    
+    ControlFont font = new ControlFont(TEXT_FONT);
     
     if(cp5.get(ScrollableList.class, prefix+"Gender") == null)
     {
@@ -302,7 +371,6 @@ class Demographics
     }
     
     
-    
     //Ethnicity
     
     
@@ -342,6 +410,209 @@ class Demographics
     else
     {
       cp5.get(ScrollableList.class, prefix+"Ethnicity").setPosition(disp_x, disp_y);
+    }
+    
+    
+    //Height
+    
+    
+    disp_x = x+5;
+    disp_y = disp_y+35;
+    
+    String heightDescription = "Height: ";
+    
+    int feet = human_height/12;
+    int inches = human_height%12;
+    
+    if(feet > 0)
+    {
+      heightDescription = heightDescription + feet + " feet";
+      if(inches > 0)
+      {
+        heightDescription = heightDescription + ", ";
+      }
+    }
+    
+    if(inches > 0)
+    {
+      heightDescription = heightDescription + inches + " inches";
+    }
+    
+    text(heightDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(heightDescription) + 5; 
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(Textfield.class, prefix+"Feet") == null)
+    {
+      cp5.addTextfield(prefix + "Feet")
+         .setPosition(disp_x,disp_y)
+         .setSize(20,20)
+         .setFont(TEXT_FONT)
+         .setLabel("");
+    }
+    else
+    {
+      cp5.get(Textfield.class, prefix+"Feet").setPosition(disp_x, disp_y);
+    }
+    
+    disp_x = disp_x + 25;
+    disp_y = disp_y + 10;
+    
+    text("Ft",disp_x,disp_y);
+    
+    disp_x = disp_x + 15;
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(Textfield.class, prefix+"Inches") == null)
+    {
+      cp5.addTextfield(prefix + "Inches")
+         .setPosition(disp_x,disp_y)
+         .setSize(20,20)
+         .setFont(TEXT_FONT)
+         .setLabel("");
+    }
+    else
+    {
+      cp5.get(Textfield.class, prefix+"Inches").setPosition(disp_x, disp_y);
+    }
+    
+    disp_x = disp_x + 25;
+    disp_y = disp_y + 10;
+    
+    text("In",disp_x,disp_y);
+    
+    
+    //Relationship Type
+    
+    
+    disp_x = x+5;
+    disp_y = disp_y + 25;
+    
+    String relationshipDescription = "Relationship Type: ";
+    
+    if(relationship != null)
+    {
+      relationshipDescription = relationshipDescription + rtToString.get(relationship);
+    }
+    
+    text(relationshipDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(relationshipDescription) + 5;
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(ScrollableList.class, prefix+"Relationship") == null)
+    {
+      cp5.addScrollableList(prefix + "Relationship")
+      .setPosition(disp_x, disp_y)
+      .setSize(130,100)
+      .setBarHeight(20)
+      .setItemHeight(20)
+      .addItem("Strictly Monogamous",0)
+      .addItem("Mostly Monogamous",1)
+      .addItem("Strictly Non-Monogamous",2)
+      .addItem("Mostly Non-Monogamous",3)
+      .setType(ScrollableList.LIST)
+      .setLabel("Relationship Type")
+      .setOpen(false);
+    }
+    else
+    {
+      cp5.get(ScrollableList.class, prefix+"Relationship").setPosition(disp_x, disp_y);
+    }
+    
+    
+    //Body Type
+    
+    
+    disp_x = x+5;
+    disp_y = disp_y + 35;
+    
+    String bodyDescription = "Body Type: ";
+    
+    if(bodytype != null)
+    {
+      bodyDescription = bodyDescription + btToString.get(bodytype);
+    }
+    
+    text(bodyDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(bodyDescription) + 5;
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(ScrollableList.class, prefix+"Body") == null)
+    {
+      cp5.addScrollableList(prefix + "Body")
+      .setPosition(disp_x, disp_y)
+      .setSize(80,100)
+      .setBarHeight(20)
+      .setItemHeight(20)
+      .addItem("Rather Not Say",0)
+      .addItem("Thin",1)
+      .addItem("Overweight",2)
+      .addItem("Skinny",3)
+      .addItem("Average Build",4)
+      .addItem("Fit",5)
+      .addItem("Athletic",6)
+      .addItem("Jacked",7)
+      .addItem("A Little Extra",8)
+      .addItem("Curvy",9)
+      .addItem("Full Figured",10)
+      .addItem("Used Up",11)
+      .setType(ScrollableList.LIST)
+      .setLabel("Body Type")
+      .setOpen(false);
+    }
+    else
+    {
+      cp5.get(ScrollableList.class, prefix+"Body").setPosition(disp_x, disp_y);
+    }
+    
+    
+    
+    //Religion
+    
+    
+    disp_x = x+5;
+    disp_y = disp_y + 35;
+    
+    String religionDescription = "Religion: ";
+    
+    if(religion != null)
+    {
+      religionDescription = religionDescription + religionToString.get(religion);
+    }
+    
+    text(religionDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(religionDescription) + 5;
+    disp_y = disp_y - 10;
+    
+    if(cp5.get(ScrollableList.class, prefix+"Religion") == null)
+    {
+      cp5.addScrollableList(prefix + "Religion")
+      .setPosition(disp_x, disp_y)
+      .setSize(80,100)
+      .setBarHeight(20)
+      .setItemHeight(20)
+      .addItem("Agnosticism",0)
+      .addItem("Atheism",1)
+      .addItem("Christianity",2)
+      .addItem("Judaism",3)
+      .addItem("Catholicism",4)
+      .addItem("Islam",5)
+      .addItem("Hinduism",6)
+      .addItem("Buddhism",7)
+      .addItem("Sikh",8)
+      .addItem("Other",9)
+      .setType(ScrollableList.LIST)
+      .setLabel("Religion")
+      .setOpen(false);
+      
+    }
+    else
+    {
+      cp5.get(ScrollableList.class, prefix+"Religion").setPosition(disp_x, disp_y);
     }
     
     fill(255);
@@ -588,6 +859,33 @@ void demoEthnicity(int n)
   
 }
 
+void demoRelationship(int n)
+{
+  RelationshipType selectedRelationship = demo.stringToRT.get(
+                          cp5.get(ScrollableList.class, "demoRelationship")
+                             .getItem(n).get("name"));
+  
+  demo.setRelationship(selectedRelationship); 
+}
+
+void demoBody(int n)
+{
+  BodyType selectedBody = demo.stringToBT.get(
+                          cp5.get(ScrollableList.class, "demoBody")
+                             .getItem(n).get("name"));
+  
+  demo.setBodyType(selectedBody); 
+}
+
+void demoReligion(int n)
+{
+  Religion selectedReligion = demo.stringToReligion.get(
+                          cp5.get(ScrollableList.class, "demoReligion")
+                             .getItem(n).get("name"));
+  
+  demo.setReligion(selectedReligion); 
+}
+
 void demoAge(String theText)
 {
   int age = -1;
@@ -600,4 +898,46 @@ void demoAge(String theText)
   }
   
   demo.setAge(age);
+}
+
+void demoFeet(String theText)
+{
+  int temp_height = demo.getHeight();
+  int feet = 0;
+  try{
+    feet = Integer.parseInt(theText);
+    int temp_inches = temp_height%12;
+    temp_height = feet*12+temp_inches;
+  }
+  catch(Exception e)
+  {
+    //Do nothing
+  }
+  
+  demo.setHeight(temp_height);
+}
+
+void demoInches(String theText)
+{
+  int temp_height = demo.getHeight();
+  int inches = 0;
+  try{
+    inches = Integer.parseInt(theText);
+    int old_inches = temp_height%12;
+    int temp_feet = temp_height/12;
+    if(inches >= 0 && inches < 12)
+    {
+      temp_height = temp_feet*12+inches;
+    }
+    else
+    {
+      temp_height = temp_feet*12+old_inches;
+    }
+  }
+  catch(Exception e)
+  {
+    //Do nothing
+  }
+  
+  demo.setHeight(temp_height);
 }

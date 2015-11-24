@@ -117,6 +117,15 @@ class Question
     
     opt_height = opt_height + 30;
     
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    text_x = (q_width)/2 + x;
+    text_y = opt_height;
+    text("Answer(s) You Will Accept",text_x,text_y);
+    
+    opt_height = opt_height + 30;
+    
     for(int i = 0; i < options.length; i++)
     {
       String option = options[i];
