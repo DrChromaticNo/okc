@@ -39,8 +39,38 @@ public enum Education {HIGH_SCHOOL, TWO_YEAR_COLLEGE, UNIVERSITY,
                        
 public enum RelationshipType {STRICTLY_MONOGAMOUS, MOSTLY_MONOGAMOUS, STRICTLY_NONMONOGAMOUS, MOSTLY_NONMONOGAMOUS};           
                     
+public HashMap<Gender,String> genderToString = new HashMap<Gender,String>();
+public HashMap<String,Gender> stringToGender = new HashMap<String,Gender>();
+  
+public HashMap<Orientation,String> orientationToString = new HashMap<Orientation,String>();
+public HashMap<String,Orientation> stringToOrientation = new HashMap<String,Orientation>();
+  
+public HashMap<Ethnicity,String> ethnicityToString = new HashMap<Ethnicity,String>();
+public HashMap<String,Ethnicity> stringToEthnicity = new HashMap<String,Ethnicity>();
+  
+public HashMap<RelationshipType,String> rtToString = new HashMap<RelationshipType,String>();
+public HashMap<String,RelationshipType> stringToRT = new HashMap<String,RelationshipType>();
+  
+public HashMap<BodyType,String> btToString = new HashMap<BodyType,String>();
+public HashMap<String,BodyType> stringToBT = new HashMap<String,BodyType>();
+  
+public HashMap<Religion,String> religionToString = new HashMap<Religion,String>();
+public HashMap<String,Religion> stringToReligion = new HashMap<String,Religion>();
+  
+public HashMap<Sign,String> signToString = new HashMap<Sign,String>();
+public HashMap<String,Sign> stringToSign = new HashMap<String,Sign>();
+  
+public HashMap<Education,String> educationToString = new HashMap<Education,String>();
+public HashMap<String,Education> stringToEducation = new HashMap<String,Education>();                    
+
 class Demographics
 {
+  private boolean editing;
+  private boolean okToSwitch;
+  private int currentSwitchInterval;
+  private int switchInterval = 10;
+  private boolean changed;
+  
   private HashSet<Gender> gender;
   
   private int age;
@@ -68,24 +98,6 @@ class Demographics
   
   private final int MIN_WIDTH = 600;
   private final int MIN_HEIGHT = 300;
-
-  public HashMap<Gender,String> genderToString = new HashMap<Gender,String>();
-  public HashMap<String,Gender> stringToGender = new HashMap<String,Gender>();
-  
-  public HashMap<Orientation,String> orientationToString = new HashMap<Orientation,String>();
-  public HashMap<String,Orientation> stringToOrientation = new HashMap<String,Orientation>();
-  
-  public HashMap<Ethnicity,String> ethnicityToString = new HashMap<Ethnicity,String>();
-  public HashMap<String,Ethnicity> stringToEthnicity = new HashMap<String,Ethnicity>();
-  
-  public HashMap<RelationshipType,String> rtToString = new HashMap<RelationshipType,String>();
-  public HashMap<String,RelationshipType> stringToRT = new HashMap<String,RelationshipType>();
-  
-  public HashMap<BodyType,String> btToString = new HashMap<BodyType,String>();
-  public HashMap<String,BodyType> stringToBT = new HashMap<String,BodyType>();
-  
-  public HashMap<Religion,String> religionToString = new HashMap<Religion,String>();
-  public HashMap<String,Religion> stringToReligion = new HashMap<String,Religion>();
   
   public Demographics(String prefix)
   {
@@ -93,174 +105,151 @@ class Demographics
     orientation = new HashSet(5);
     ethnicity = new HashSet(Ethnicity.values().length);
     this.prefix = prefix;
-    
-    genderToString.put(Gender.WOMAN, "Woman");
-    genderToString.put(Gender.MAN, "Man");
-    genderToString.put(Gender.AGENDER, "Agender");
-    genderToString.put(Gender.ANDROGYNOUS, "Androgynous");
-    genderToString.put(Gender.BIGENDER, "Bigender");
-    genderToString.put(Gender.CIS_MAN, "Cis Man");
-    genderToString.put(Gender.CIS_WOMAN, "Cis Woman");
-    genderToString.put(Gender.GENDERFLUID, "Genderfluid");
-    genderToString.put(Gender.GENDERQUEER, "Genderqueer");
-    genderToString.put(Gender.GENDER_NONCONFORMING, "Gender Nonconforming");
-    genderToString.put(Gender.HIJRA, "Hijra");
-    genderToString.put(Gender.INTERSEX, "Intersex");
-    genderToString.put(Gender.NON_BINARY, "Non-Binary");
-    genderToString.put(Gender.OTHER, "Other");
-    genderToString.put(Gender.PANGENDER, "Pangender");
-    genderToString.put(Gender.TRANSFEMININE, "Transfeminine");
-    genderToString.put(Gender.TRANSGENDER, "Transgender");
-    genderToString.put(Gender.TRANSMASCULINE, "Transmasculine");
-    genderToString.put(Gender.TRANS_MAN, "Trans Man");
-    genderToString.put(Gender.TRANS_WOMAN, "Trans Woman");
-    genderToString.put(Gender.TWO_SPIRIT, "Two Spirit");
-    
-    stringToGender.put("Woman", Gender.WOMAN);
-    stringToGender.put("Man", Gender.MAN);
-    stringToGender.put("Agender", Gender.AGENDER);
-    stringToGender.put("Androgynous", Gender.ANDROGYNOUS);
-    stringToGender.put("Bigender", Gender.BIGENDER);
-    stringToGender.put("Cis Man", Gender.CIS_MAN);
-    stringToGender.put("Cis Woman", Gender.CIS_WOMAN);
-    stringToGender.put("Genderfluid", Gender.GENDERFLUID);
-    stringToGender.put("Genderqueer", Gender.GENDERQUEER);
-    stringToGender.put("Gender Nonconforming", Gender.GENDER_NONCONFORMING);
-    stringToGender.put("Hijra", Gender.HIJRA);
-    stringToGender.put("Intersex", Gender.INTERSEX);
-    stringToGender.put("Non-Binary", Gender.NON_BINARY);
-    stringToGender.put("Other", Gender.OTHER);
-    stringToGender.put("Pangender", Gender.PANGENDER);
-    stringToGender.put("Transfeminine", Gender.TRANSFEMININE);
-    stringToGender.put("Transgender", Gender.TRANSGENDER);
-    stringToGender.put("Transmasculine", Gender.TRANSMASCULINE);
-    stringToGender.put("Trans Man", Gender.TRANS_MAN);
-    stringToGender.put("Trans Woman", Gender.TRANS_WOMAN);
-    stringToGender.put("Two Spirit", Gender.TWO_SPIRIT);
-    
-    orientationToString.put(Orientation.STRAIGHT,"Straight");
-    orientationToString.put(Orientation.GAY,"Gay");
-    orientationToString.put(Orientation.BISEXUAL,"Bisexual");
-    orientationToString.put(Orientation.ASEXUAL,"Asexual");
-    orientationToString.put(Orientation.DEMISEXUAL,"Demisexual");
-    orientationToString.put(Orientation.HETEROFLEXIBLE,"Heteroflexible");
-    orientationToString.put(Orientation.LESBIAN,"Lesbian");
-    orientationToString.put(Orientation.PANSEXUAL,"Pansexual");
-    orientationToString.put(Orientation.QUEER,"Queer");
-    orientationToString.put(Orientation.QUESTIONING,"Questioning");
-    orientationToString.put(Orientation.SAPIOSEXUAL,"Sapiosexual");
-    
-    stringToOrientation.put("Straight",Orientation.STRAIGHT);
-    stringToOrientation.put("Gay",Orientation.GAY);
-    stringToOrientation.put("Bisexual",Orientation.BISEXUAL);
-    stringToOrientation.put("Asexual",Orientation.ASEXUAL);
-    stringToOrientation.put("Demisexual",Orientation.DEMISEXUAL);
-    stringToOrientation.put("Heteroflexible",Orientation.HETEROFLEXIBLE);
-    stringToOrientation.put("Lesbian",Orientation.LESBIAN);
-    stringToOrientation.put("Pansexual",Orientation.PANSEXUAL);
-    stringToOrientation.put("Queer",Orientation.QUEER);
-    stringToOrientation.put("Questioning",Orientation.QUESTIONING);
-    stringToOrientation.put("Sapiosexual",Orientation.SAPIOSEXUAL);
-    
-    ethnicityToString.put(Ethnicity.ASIAN,"Asian");
-    ethnicityToString.put(Ethnicity.NATIVE_AMERICAN,"Native American");
-    ethnicityToString.put(Ethnicity.INDIAN,"Indian");
-    ethnicityToString.put(Ethnicity.MIDDLE_EASTERN,"Middle Eastern");
-    ethnicityToString.put(Ethnicity.HISPANIC_LATIN,"Hispanic/Latin");
-    ethnicityToString.put(Ethnicity.WHITE,"White");
-    ethnicityToString.put(Ethnicity.BLACK,"Black");
-    ethnicityToString.put(Ethnicity.PACIFIC_ISLANDER,"Pacific Islander");
-    ethnicityToString.put(Ethnicity.OTHER,"Other");
-    
-    stringToEthnicity.put("Asian",Ethnicity.ASIAN);
-    stringToEthnicity.put("Native American",Ethnicity.NATIVE_AMERICAN);
-    stringToEthnicity.put("Indian",Ethnicity.INDIAN);
-    stringToEthnicity.put("Middle Eastern",Ethnicity.MIDDLE_EASTERN);
-    stringToEthnicity.put("Hispanic/Latin",Ethnicity.HISPANIC_LATIN);
-    stringToEthnicity.put("White",Ethnicity.WHITE);
-    stringToEthnicity.put("Black",Ethnicity.BLACK);
-    stringToEthnicity.put("Pacific Islander",Ethnicity.PACIFIC_ISLANDER);
-    stringToEthnicity.put("Other",Ethnicity.OTHER);
-    
-    rtToString.put(RelationshipType.STRICTLY_MONOGAMOUS,"Strictly Monogamous");
-    rtToString.put(RelationshipType.MOSTLY_MONOGAMOUS,"Mostly Monogamous");
-    rtToString.put(RelationshipType.STRICTLY_NONMONOGAMOUS,"Strictly Non-Monogamous");
-    rtToString.put(RelationshipType.MOSTLY_NONMONOGAMOUS,"Mostly Non-Monogamous");
- 
-    stringToRT.put("Strictly Monogamous",RelationshipType.STRICTLY_MONOGAMOUS);
-    stringToRT.put("Mostly Monogamous",RelationshipType.MOSTLY_MONOGAMOUS);
-    stringToRT.put("Strictly Non-Monogamous",RelationshipType.STRICTLY_NONMONOGAMOUS);
-    stringToRT.put("Mostly Non-Monogamous",RelationshipType.MOSTLY_NONMONOGAMOUS);
-    
-    btToString.put(BodyType.RATHER_NOT_SAY,"Rather Not Say");
-    btToString.put(BodyType.THIN,"Thin");
-    btToString.put(BodyType.OVERWEIGHT,"Overweight");
-    btToString.put(BodyType.SKINNY,"Skinny");
-    btToString.put(BodyType.AVERAGE_BUILD,"Average Build");
-    btToString.put(BodyType.FIT,"Fit");
-    btToString.put(BodyType.ATHLETIC,"Athletic");
-    btToString.put(BodyType.JACKED,"Jacked");
-    btToString.put(BodyType.A_LITTLE_EXTRA,"A Little Extra");
-    btToString.put(BodyType.CURVY,"Curvy");
-    btToString.put(BodyType.FULL_FIGURED,"Full Figured");
-    btToString.put(BodyType.USED_UP,"Used Up");
-    
-    stringToBT.put("Rather Not Say",BodyType.RATHER_NOT_SAY);
-    stringToBT.put("Thin",BodyType.THIN);
-    stringToBT.put("Overweight",BodyType.OVERWEIGHT);
-    stringToBT.put("Skinny",BodyType.SKINNY);
-    stringToBT.put("Average Build",BodyType.AVERAGE_BUILD);
-    stringToBT.put("Fit",BodyType.FIT);
-    stringToBT.put("Athletic",BodyType.ATHLETIC);
-    stringToBT.put("Jacked",BodyType.JACKED);
-    stringToBT.put("A Little Extra",BodyType.A_LITTLE_EXTRA);
-    stringToBT.put("Curvy",BodyType.CURVY);
-    stringToBT.put("Full Figured",BodyType.FULL_FIGURED);
-    stringToBT.put("Used Up",BodyType.USED_UP);
-    
-    religionToString.put(Religion.AGNOSTICISM,"Agnosticism");
-    religionToString.put(Religion.ATHEISM,"Atheism");
-    religionToString.put(Religion.CHRISTIANITY,"Christianity");
-    religionToString.put(Religion.JUDAISM,"Judaism");
-    religionToString.put(Religion.CATHOLICISM,"Catholicism");
-    religionToString.put(Religion.ISLAM,"Islam");
-    religionToString.put(Religion.HINDUISM,"Hinduism");
-    religionToString.put(Religion.BUDDHISM,"Buddhism");
-    religionToString.put(Religion.SIKH,"Sikh");
-    religionToString.put(Religion.OTHER,"Other");
-    
-    stringToReligion.put("Agnosticism",Religion.AGNOSTICISM);
-    stringToReligion.put("Atheism",Religion.ATHEISM);
-    stringToReligion.put("Christianity",Religion.CHRISTIANITY);
-    stringToReligion.put("Judaism",Religion.JUDAISM);
-    stringToReligion.put("Catholicism",Religion.CATHOLICISM);
-    stringToReligion.put("Islam",Religion.ISLAM);
-    stringToReligion.put("Hinduism",Religion.HINDUISM);
-    stringToReligion.put("Buddhism",Religion.BUDDHISM);
-    stringToReligion.put("Sikh",Religion.SIKH);
-    stringToReligion.put("Other",Religion.OTHER);
-    
+    editing = false;
+    okToSwitch = true;
+    currentSwitchInterval = 0;
+    changed = true;
   }
   
-  public void drawAt(int x, int y, PFont TEXT_FONT)
+  public boolean getChanged()
+  {
+    if(changed)
+    {
+      changed = false;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  
+  public void drawAt(float x, float y, PFont TEXT_FONT, PFont BUTTON_FONT)
   {
     int d_width = MIN_WIDTH;
     int d_height = MIN_HEIGHT;
+    float interval = 25;
+    float startBuffer = 15;
     
-    rect(x, y, d_width, d_height);
+    float end = interval*9 + startBuffer;
     
+    fill(okcOffWhite);
+    noStroke();
     
-    //Gender
+    rect(x, y, d_width, d_height,7);
     
+    //Editing button
+    float button_w = 100;
+    float button_h = 50;
     
-    int disp_x = x+5;
-    int disp_y = y+15;
+    color okcButton = color(50,96,199);
+    color okcButton_mouseover = color(69,110,203);
+    
+    noStroke();
+    
+    float rect_x = x+d_width-button_w-15;
+    float rect_y = y+d_height-button_h-15;
+    
+    if(overRect(rect_x,rect_y,button_w,button_h))
+    {
+      fill(okcButton_mouseover);
+      if(mousePressed && mouseButton == LEFT && okToSwitch)
+      {
+        editing = !editing;
+        okToSwitch = false;
+        currentSwitchInterval = 0;
+        if(editing == false)
+        {
+          changed = true;
+        }
+      }
+    }
+    else
+    {
+      fill(okcButton);
+    }
+   
+    rect(rect_x,rect_y,button_w,button_h);
+    
+    textFont(BUTTON_FONT);
+    fill(255);
+    textAlign(CENTER);
+    
+    String buttonText;
+    
+    if(editing)
+    {
+      buttonText = "Done";
+    }
+    else
+    {
+      buttonText = "Edit";
+    }
+    
+    text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
     
     textFont(TEXT_FONT);
     fill(0);
     textAlign(LEFT);
     
-    String genderDescription = "I am:";
+    float disp_x = x+5;
+    float disp_y = y+end;
+    
+    disp_y = y+end;
+    
+    drawEducation(disp_x, disp_y);
+    
+    disp_y = disp_y-interval;
+    
+    drawSign(disp_x, disp_y);
+    
+    disp_y = disp_y-interval;
+    
+    drawReligion(disp_x, disp_y);
+    
+    disp_y = disp_y-interval;
+    
+    drawBodyType(disp_x, disp_y);
+    
+    disp_y = disp_y-interval;
+    
+    drawRelationship(disp_x, disp_y);
+    
+    disp_y = disp_y-interval;
+    
+    drawHeight(disp_x, disp_y);
+   
+    disp_y = disp_y-interval;
+    
+    drawEthnicity(disp_x,disp_y);
+    
+    disp_y = disp_y-interval;
+    
+    drawOrientation(disp_x,disp_y);
+   
+    disp_y = disp_y-interval;
+    
+    drawAge(disp_x,disp_y);
+   
+    disp_y = disp_y-interval;
+    
+    drawGender(disp_x,disp_y); 
+    
+    if(currentSwitchInterval < switchInterval)
+    {
+      currentSwitchInterval = currentSwitchInterval+1;
+    }
+    else
+    {
+      okToSwitch = true;
+    }
+    
+    fill(255);
+  }
+  
+  private void drawGender(float disp_x, float disp_y)
+  {
+    String genderDescription = "Gender:";
     
     for(Gender g:gender)
     {
@@ -278,31 +267,37 @@ class Demographics
     disp_x = disp_x + (int) textWidth(genderDescription) + 5; 
     disp_y = disp_y - 10;
     
-    ControlFont font = new ControlFont(TEXT_FONT);
-    
-    if(cp5.get(ScrollableList.class, prefix+"Gender") == null)
+    if(editing)
     {
-      cp5.addScrollableList(prefix + "Gender")
-      .setPosition(disp_x, disp_y)
-      .setBarHeight(20)
-      .setItemHeight(20)
-      .addItems(genderToString.values().toArray(new String[0]))
-      .setType(ScrollableList.LIST)
-      .setLabel("Gender")
-      .setOpen(false);
+      if(cp5.get(ScrollableList.class, prefix+"Gender") == null)
+      {
+        cp5.addScrollableList(prefix + "Gender")
+        .setPosition(disp_x, disp_y)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItems(genderToString.values().toArray(new String[0]))
+        .setType(ScrollableList.LIST)
+        .setLabel("Gender")
+        .setOpen(false);
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Gender").setVisible(true);
+        cp5.get(ScrollableList.class, prefix+"Gender").setPosition(disp_x, disp_y);
+      }
     }
     else
     {
-      cp5.get(ScrollableList.class, prefix+"Gender").setPosition(disp_x, disp_y);
+      if(cp5.get(ScrollableList.class, prefix+"Gender") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Gender").setOpen(false);
+        cp5.get(ScrollableList.class, prefix+"Gender").setVisible(false);
+      }
     }
-    
-    
-    //Age
-    
-    
-    disp_x = x+5; 
-    disp_y = disp_y+35;
-    
+  }
+  
+  private void drawAge(float disp_x, float disp_y)
+  {
     String ageDescription = "Age:";
     
     if(age > 0)
@@ -315,23 +310,34 @@ class Demographics
     disp_x = disp_x + (int) textWidth(ageDescription) + 5;
     disp_y = disp_y - 10;
     
-    if(cp5.get(Textfield.class, prefix+"Age") == null)
+    if(editing)
     {
-      cp5.addTextfield(prefix + "Age")
-         .setPosition(disp_x,disp_y)
-         .setSize(20,20)
-         .setFont(TEXT_FONT)
-         .setLabel("");
+      if(cp5.get(Textfield.class, prefix+"Age") == null)
+      {
+        cp5.addTextfield(prefix + "Age")
+           .setPosition(disp_x,disp_y)
+           .setSize(20,20)
+           .setFont(TEXT_FONT)
+           .setLabel("");
+      }
+      else
+      {
+        cp5.get(Textfield.class, prefix+"Age").setVisible(true);
+        cp5.get(Textfield.class, prefix+"Age").setPosition(disp_x, disp_y);
+      }
     }
     else
     {
-      cp5.get(Textfield.class, prefix+"Age").setPosition(disp_x, disp_y);
+      if(cp5.get(Textfield.class, prefix+"Age") != null)
+      {
+        cp5.get(Textfield.class, prefix+"Age").setText("");
+        cp5.get(Textfield.class, prefix+"Age").setVisible(false);
+      }
     }
-    
-    
-    //Orientation
-    
-    
+  }
+  
+  private void drawOrientation(float disp_x, float disp_y)
+  {
     String orientationDescription = "Orientation:";
     
     for(Orientation o:orientation)
@@ -346,34 +352,44 @@ class Demographics
         .substring(0,orientationDescription.length()-1);
     }
     
-    disp_x = x+5; 
-    disp_y = disp_y+35;
-    
     text(orientationDescription, disp_x, disp_y);
     
     disp_x = disp_x + (int) textWidth(orientationDescription) + 5; 
     disp_y = disp_y - 10;
     
-    if(cp5.get(ScrollableList.class, prefix+"Orientation") == null)
+    if(editing)
     {
-      cp5.addScrollableList(prefix + "Orientation")
-      .setPosition(disp_x, disp_y)
-      .setBarHeight(20)
-      .setItemHeight(20)
-      .addItems(orientationToString.values().toArray(new String[0]))
-      .setType(ScrollableList.LIST)
-      .setLabel("Orientation")
-      .setOpen(false);
+      if(cp5.get(ScrollableList.class, prefix+"Orientation") == null)
+      {
+        cp5.addScrollableList(prefix + "Orientation")
+        .setPosition(disp_x, disp_y)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItems(orientationToString.values().toArray(new String[0]))
+        .setType(ScrollableList.LIST)
+        .setLabel("Orientation")
+        .setOpen(false);
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Orientation")
+        .setPosition(disp_x, disp_y)
+        .setVisible(true);
+      }
     }
     else
     {
-      cp5.get(ScrollableList.class, prefix+"Orientation").setPosition(disp_x, disp_y);
+      if(cp5.get(ScrollableList.class, prefix+"Orientation") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Orientation")
+        .setVisible(false)
+        .setOpen(false);
+      }
     }
-    
-    
-    //Ethnicity
-    
-    
+  }
+  
+  private void drawEthnicity(float disp_x, float disp_y)
+  {
     String ethnicityDescription = "Ethnicity:";
     
     for(Ethnicity e:ethnicity)
@@ -388,37 +404,44 @@ class Demographics
         .substring(0,ethnicityDescription.length()-1);
     }
     
-    disp_x = x+5; 
-    disp_y = disp_y+35;
-    
     text(ethnicityDescription, disp_x, disp_y);
     
     disp_x = disp_x + (int) textWidth(ethnicityDescription) + 5; 
     disp_y = disp_y - 10;
     
-    if(cp5.get(ScrollableList.class, prefix+"Ethnicity") == null)
+    if(editing)
     {
-      cp5.addScrollableList(prefix + "Ethnicity")
-      .setPosition(disp_x, disp_y)
-      .setBarHeight(20)
-      .setItemHeight(20)
-      .addItems(ethnicityToString.values().toArray(new String[0]))
-      .setType(ScrollableList.LIST)
-      .setLabel("Ethnicity")
-      .setOpen(false);
+      if(cp5.get(ScrollableList.class, prefix+"Ethnicity") == null)
+      {
+        cp5.addScrollableList(prefix + "Ethnicity")
+        .setPosition(disp_x, disp_y)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItems(ethnicityToString.values().toArray(new String[0]))
+        .setType(ScrollableList.LIST)
+        .setLabel("Ethnicity")
+        .setOpen(false);
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Ethnicity")
+        .setVisible(true)
+        .setPosition(disp_x, disp_y);
+      }
     }
     else
     {
-      cp5.get(ScrollableList.class, prefix+"Ethnicity").setPosition(disp_x, disp_y);
+      if(cp5.get(ScrollableList.class, prefix+"Ethnicity") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Ethnicity")
+        .setVisible(false)
+        .setOpen(false);
+      }
     }
-    
-    
-    //Height
-    
-    
-    disp_x = x+5;
-    disp_y = disp_y+35;
-    
+  }
+  
+  private void drawHeight(float disp_x, float disp_y)
+  {
     String heightDescription = "Height: ";
     
     int feet = human_height/12;
@@ -443,52 +466,59 @@ class Demographics
     disp_x = disp_x + (int) textWidth(heightDescription) + 5; 
     disp_y = disp_y - 10;
     
-    if(cp5.get(Textfield.class, prefix+"Feet") == null)
+    if(editing)
     {
-      cp5.addTextfield(prefix + "Feet")
-         .setPosition(disp_x,disp_y)
-         .setSize(20,20)
-         .setFont(TEXT_FONT)
-         .setLabel("");
+      if(cp5.get(Textfield.class, prefix+"Feet") == null)
+      {
+        cp5.addTextfield(prefix + "Feet")
+           .setPosition(disp_x,disp_y)
+           .setSize(20,20)
+           .setFont(TEXT_FONT)
+           .setLabel("");
+      }
+      else
+      {
+        cp5.get(Textfield.class, prefix+"Feet").setPosition(disp_x, disp_y).setVisible(true);
+      }
+      
+      disp_x = disp_x + 25;
+      disp_y = disp_y + 10;
+      
+      text("Ft",disp_x,disp_y);
+      
+      disp_x = disp_x + 15;
+      disp_y = disp_y - 10;
+      
+      if(cp5.get(Textfield.class, prefix+"Inches") == null)
+      {
+        cp5.addTextfield(prefix + "Inches")
+           .setPosition(disp_x,disp_y)
+           .setSize(20,20)
+           .setFont(TEXT_FONT)
+           .setLabel("");
+      }
+      else
+      {
+        cp5.get(Textfield.class, prefix+"Inches").setPosition(disp_x, disp_y).setVisible(true);
+      }
+      
+      disp_x = disp_x + 25;
+      disp_y = disp_y + 10;
+      
+      text("In",disp_x,disp_y);
     }
     else
     {
-      cp5.get(Textfield.class, prefix+"Feet").setPosition(disp_x, disp_y);
+      if(cp5.get(Textfield.class, prefix+"Inches") != null)
+      {
+        cp5.get(Textfield.class, prefix+"Inches").setText("").setVisible(false);
+        cp5.get(Textfield.class, prefix+"Feet").setText("").setVisible(false);
+      }
     }
-    
-    disp_x = disp_x + 25;
-    disp_y = disp_y + 10;
-    
-    text("Ft",disp_x,disp_y);
-    
-    disp_x = disp_x + 15;
-    disp_y = disp_y - 10;
-    
-    if(cp5.get(Textfield.class, prefix+"Inches") == null)
-    {
-      cp5.addTextfield(prefix + "Inches")
-         .setPosition(disp_x,disp_y)
-         .setSize(20,20)
-         .setFont(TEXT_FONT)
-         .setLabel("");
-    }
-    else
-    {
-      cp5.get(Textfield.class, prefix+"Inches").setPosition(disp_x, disp_y);
-    }
-    
-    disp_x = disp_x + 25;
-    disp_y = disp_y + 10;
-    
-    text("In",disp_x,disp_y);
-    
-    
-    //Relationship Type
-    
-    
-    disp_x = x+5;
-    disp_y = disp_y + 25;
-    
+  }
+  
+  private void drawRelationship(float disp_x, float disp_y)
+  {
     String relationshipDescription = "Relationship Type: ";
     
     if(relationship != null)
@@ -501,33 +531,39 @@ class Demographics
     disp_x = disp_x + (int) textWidth(relationshipDescription) + 5;
     disp_y = disp_y - 10;
     
-    if(cp5.get(ScrollableList.class, prefix+"Relationship") == null)
+    if(editing)
     {
-      cp5.addScrollableList(prefix + "Relationship")
-      .setPosition(disp_x, disp_y)
-      .setSize(130,100)
-      .setBarHeight(20)
-      .setItemHeight(20)
-      .addItem("Strictly Monogamous",0)
-      .addItem("Mostly Monogamous",1)
-      .addItem("Strictly Non-Monogamous",2)
-      .addItem("Mostly Non-Monogamous",3)
-      .setType(ScrollableList.LIST)
-      .setLabel("Relationship Type")
-      .setOpen(false);
+      if(cp5.get(ScrollableList.class, prefix+"Relationship") == null)
+      {
+        cp5.addScrollableList(prefix + "Relationship")
+        .setPosition(disp_x, disp_y)
+        .setSize(130,100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItem("Strictly Monogamous",0)
+        .addItem("Mostly Monogamous",1)
+        .addItem("Strictly Non-Monogamous",2)
+        .addItem("Mostly Non-Monogamous",3)
+        .setType(ScrollableList.LIST)
+        .setLabel("Relationship Type")
+        .setOpen(false);
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Relationship").setPosition(disp_x, disp_y).setVisible(true);
+      }
     }
     else
     {
-      cp5.get(ScrollableList.class, prefix+"Relationship").setPosition(disp_x, disp_y);
+      if(cp5.get(ScrollableList.class, prefix+"Relationship") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Relationship").setOpen(false).setVisible(false);
+      } 
     }
-    
-    
-    //Body Type
-    
-    
-    disp_x = x+5;
-    disp_y = disp_y + 35;
-    
+  }
+  
+  private void drawBodyType(float disp_x, float disp_y)
+  {
     String bodyDescription = "Body Type: ";
     
     if(bodytype != null)
@@ -540,42 +576,47 @@ class Demographics
     disp_x = disp_x + (int) textWidth(bodyDescription) + 5;
     disp_y = disp_y - 10;
     
-    if(cp5.get(ScrollableList.class, prefix+"Body") == null)
+    if(editing)
     {
-      cp5.addScrollableList(prefix + "Body")
-      .setPosition(disp_x, disp_y)
-      .setSize(80,100)
-      .setBarHeight(20)
-      .setItemHeight(20)
-      .addItem("Rather Not Say",0)
-      .addItem("Thin",1)
-      .addItem("Overweight",2)
-      .addItem("Skinny",3)
-      .addItem("Average Build",4)
-      .addItem("Fit",5)
-      .addItem("Athletic",6)
-      .addItem("Jacked",7)
-      .addItem("A Little Extra",8)
-      .addItem("Curvy",9)
-      .addItem("Full Figured",10)
-      .addItem("Used Up",11)
-      .setType(ScrollableList.LIST)
-      .setLabel("Body Type")
-      .setOpen(false);
+      if(cp5.get(ScrollableList.class, prefix+"Body") == null)
+      {
+        cp5.addScrollableList(prefix + "Body")
+        .setPosition(disp_x, disp_y)
+        .setSize(80,100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItem("Rather Not Say",0)
+        .addItem("Thin",1)
+        .addItem("Overweight",2)
+        .addItem("Skinny",3)
+        .addItem("Average Build",4)
+        .addItem("Fit",5)
+        .addItem("Athletic",6)
+        .addItem("Jacked",7)
+        .addItem("A Little Extra",8)
+        .addItem("Curvy",9)
+        .addItem("Full Figured",10)
+        .addItem("Used Up",11)
+        .setType(ScrollableList.LIST)
+        .setLabel("Body Type")
+        .setOpen(false);
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Body").setPosition(disp_x, disp_y).setVisible(true);
+      }
     }
     else
     {
-      cp5.get(ScrollableList.class, prefix+"Body").setPosition(disp_x, disp_y);
+      if(cp5.get(ScrollableList.class, prefix+"Body") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Body").setOpen(false).setVisible(false);
+      }
     }
-    
-    
-    
-    //Religion
-    
-    
-    disp_x = x+5;
-    disp_y = disp_y + 35;
-    
+  }
+  
+  private void drawReligion(float disp_x, float disp_y)
+  {
     String religionDescription = "Religion: ";
     
     if(religion != null)
@@ -588,34 +629,142 @@ class Demographics
     disp_x = disp_x + (int) textWidth(religionDescription) + 5;
     disp_y = disp_y - 10;
     
-    if(cp5.get(ScrollableList.class, prefix+"Religion") == null)
+    if(editing)
     {
-      cp5.addScrollableList(prefix + "Religion")
-      .setPosition(disp_x, disp_y)
-      .setSize(80,100)
-      .setBarHeight(20)
-      .setItemHeight(20)
-      .addItem("Agnosticism",0)
-      .addItem("Atheism",1)
-      .addItem("Christianity",2)
-      .addItem("Judaism",3)
-      .addItem("Catholicism",4)
-      .addItem("Islam",5)
-      .addItem("Hinduism",6)
-      .addItem("Buddhism",7)
-      .addItem("Sikh",8)
-      .addItem("Other",9)
-      .setType(ScrollableList.LIST)
-      .setLabel("Religion")
-      .setOpen(false);
-      
+      if(cp5.get(ScrollableList.class, prefix+"Religion") == null)
+      {
+        cp5.addScrollableList(prefix + "Religion")
+        .setPosition(disp_x, disp_y)
+        .setSize(80,100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItem("Agnosticism",0)
+        .addItem("Atheism",1)
+        .addItem("Christianity",2)
+        .addItem("Judaism",3)
+        .addItem("Catholicism",4)
+        .addItem("Islam",5)
+        .addItem("Hinduism",6)
+        .addItem("Buddhism",7)
+        .addItem("Sikh",8)
+        .addItem("Other",9)
+        .setType(ScrollableList.LIST)
+        .setLabel("Religion")
+        .setOpen(false);
+        
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Religion").setPosition(disp_x, disp_y).setVisible(true);
+      }
     }
     else
     {
-      cp5.get(ScrollableList.class, prefix+"Religion").setPosition(disp_x, disp_y);
+      if(cp5.get(ScrollableList.class, prefix+"Religion") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Religion").setOpen(false).setVisible(false);
+      }
+    }
+  }
+  
+  private void drawSign(float disp_x, float disp_y)
+  {
+    String signDescription = "Sign: ";
+    
+    if(sign != null)
+    {
+      signDescription = signDescription + signToString.get(sign);
     }
     
-    fill(255);
+    text(signDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(signDescription) + 5;
+    disp_y = disp_y - 10;
+    
+    if(editing)
+    {
+      if(cp5.get(ScrollableList.class, prefix+"Sign") == null)
+      {
+        cp5.addScrollableList(prefix + "Sign")
+        .setPosition(disp_x, disp_y)
+        .setSize(80,100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItem("Aquarius",0)
+        .addItem("Pisces",1)
+        .addItem("Aries",2)
+        .addItem("Taurus",3)
+        .addItem("Gemini",4)
+        .addItem("Cancer",5)
+        .addItem("Leo",6)
+        .addItem("Virgo",7)
+        .addItem("Libra",8)
+        .addItem("Scorpio",9)
+        .addItem("Sagittarius",10)
+        .addItem("Capricorn",11)
+        .setType(ScrollableList.LIST)
+        .setLabel("Sign")
+        .setOpen(false);
+        
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Sign").setPosition(disp_x, disp_y).setVisible(true);
+      }
+    }
+    else
+    {
+      if(cp5.get(ScrollableList.class, prefix+"Sign") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Sign").setOpen(false).setVisible(false);
+      }
+    }
+  }
+  
+  private void drawEducation(float disp_x, float disp_y)
+  {
+    String educationDescription = "Education: ";
+    
+    if(education != null)
+    {
+      educationDescription = educationDescription + educationToString.get(education);
+    }
+    
+    text(educationDescription, disp_x, disp_y);
+    
+    disp_x = disp_x + (int) textWidth(educationDescription) + 5;
+    disp_y = disp_y - 10;
+    
+    if(editing)
+    {
+      if(cp5.get(ScrollableList.class, prefix+"Education") == null)
+      {
+        cp5.addScrollableList(prefix + "Education")
+        .setPosition(disp_x, disp_y)
+        .setSize(85,100)
+        .setBarHeight(20)
+        .setItemHeight(20)
+        .addItem("High School",0)
+        .addItem("Two Year College",1)
+        .addItem("University",2)
+        .addItem("Post Grad",3)
+        .setType(ScrollableList.LIST)
+        .setLabel("Education")
+        .setOpen(false);
+        
+      }
+      else
+      {
+        cp5.get(ScrollableList.class, prefix+"Education").setPosition(disp_x, disp_y).setVisible(true);
+      }
+    }
+    else
+    {
+      if(cp5.get(ScrollableList.class, prefix+"Education") != null)
+      {
+        cp5.get(ScrollableList.class, prefix+"Education").setOpen(false).setVisible(false);
+      }
+    }
   }
   
   public Set<Gender> getGenders()
@@ -804,7 +953,7 @@ class Demographics
 
 void demoGender(int n)
 { //<>//
-  Gender selectedGender = demo.stringToGender.get(
+  Gender selectedGender = stringToGender.get(
                           cp5.get(ScrollableList.class, "demoGender")
                              .getItem(n).get("name"));
   
@@ -823,7 +972,7 @@ void demoGender(int n)
 
 void demoOrientation(int n)
 {
-  Orientation selectedOrientation = demo.stringToOrientation.get(
+  Orientation selectedOrientation = stringToOrientation.get(
                           cp5.get(ScrollableList.class, "demoOrientation")
                              .getItem(n).get("name"));
   
@@ -842,7 +991,7 @@ void demoOrientation(int n)
 
 void demoEthnicity(int n)
 {
-  Ethnicity selectedEthnicity = demo.stringToEthnicity.get(
+  Ethnicity selectedEthnicity = stringToEthnicity.get(
                           cp5.get(ScrollableList.class, "demoEthnicity")
                              .getItem(n).get("name"));
   
@@ -861,7 +1010,7 @@ void demoEthnicity(int n)
 
 void demoRelationship(int n)
 {
-  RelationshipType selectedRelationship = demo.stringToRT.get(
+  RelationshipType selectedRelationship = stringToRT.get(
                           cp5.get(ScrollableList.class, "demoRelationship")
                              .getItem(n).get("name"));
   
@@ -870,7 +1019,7 @@ void demoRelationship(int n)
 
 void demoBody(int n)
 {
-  BodyType selectedBody = demo.stringToBT.get(
+  BodyType selectedBody = stringToBT.get(
                           cp5.get(ScrollableList.class, "demoBody")
                              .getItem(n).get("name"));
   
@@ -879,11 +1028,29 @@ void demoBody(int n)
 
 void demoReligion(int n)
 {
-  Religion selectedReligion = demo.stringToReligion.get(
+  Religion selectedReligion = stringToReligion.get(
                           cp5.get(ScrollableList.class, "demoReligion")
                              .getItem(n).get("name"));
   
   demo.setReligion(selectedReligion); 
+}
+
+void demoSign(int n)
+{
+  Sign selectedSign = stringToSign.get(
+                          cp5.get(ScrollableList.class, "demoSign")
+                             .getItem(n).get("name"));
+  
+  demo.setSign(selectedSign); 
+}
+
+void demoEducation(int n)
+{
+  Education selectedEducation = stringToEducation.get(
+                          cp5.get(ScrollableList.class, "demoEducation")
+                             .getItem(n).get("name"));
+  
+  demo.setEducation(selectedEducation); 
 }
 
 void demoAge(String theText)

@@ -1,7 +1,16 @@
-boolean overCircle(int x, int y, int diameter) {
+boolean overCircle(float x, float y, int diameter) {
   float disX = x - mouseX;
   float disY = y - mouseY;
   if (sqrt(sq(disX) + sq(disY)) < diameter/2 ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+boolean overRect(float x, float y, float width, float height)  {
+  if (mouseX >= x && mouseX <= x+width && 
+      mouseY >= y && mouseY <= y+height) {
     return true;
   } else {
     return false;
@@ -16,13 +25,37 @@ class Question
   private Integer theirChoice;
   private final int MIN_WIDTH = 300;
   private final int MIN_HEIGHT = 300;
+  private boolean editable;
+  private boolean editing;
+  private boolean okToSwitch;
+  private int switchInterval = 10;
+  private int currSwitch;
+  private boolean changed;
   
-  public Question(String text, String[] options)
+  public Question(String text, String[] options, boolean editable)
   {
     this.text = text;
     this.options = options;
     yourChoice = null;
     theirChoice = null;
+    this.editable = editable;
+    editing = false;
+    currSwitch = 0;
+    okToSwitch = true;
+    changed = true;
+  }
+  
+  public boolean getChanged()
+  {
+    if(changed)
+    {
+      changed = false;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
   
   public void selectYourChoice(int choice)
@@ -41,34 +74,91 @@ class Question
     }
   }
   
-  public void drawAt(int x, int y, PFont TEXT_FONT, PFont OPTIONS_FONT)
+  public void drawAt(float x, float y)
   { 
     int q_width = MIN_WIDTH;
     int q_height = MIN_HEIGHT;
     
+    noStroke();
+    fill(okcOffWhite);
     rect(x, y, q_width, q_height, 7);
     
+    if(editable)
+    {
+      //Make Edit Button
+      float button_w = 80;
+      float button_h = 25;
+      
+      color okcButton = color(50,96,199);
+      color okcButton_mouseover = color(69,110,203);
+      noStroke();
+      
+      float rect_x = x+q_width-button_w-5;
+      float rect_y = y+q_height-button_h-5;
+      
+      if(overRect(rect_x,rect_y,button_w,button_h))
+      {
+        fill(okcButton_mouseover);
+        if(mousePressed && mouseButton == LEFT && okToSwitch)
+        {
+          editing = !editing;
+          okToSwitch = false;
+          currSwitch = 0;
+          if(!editing)
+          {
+            changed = true;
+          }
+        }
+      }
+      else
+      {
+        fill(okcButton);
+      }
+      
+      rect(rect_x,rect_y,button_w,button_h);
+      
+      textFont(OPTIONS_FONT);
+      fill(255);
+      textAlign(CENTER);
+      
+      String buttonText;
+      
+      if(editing)
+      {
+        buttonText = "Done";
+      }
+      else
+      {
+        buttonText = "Edit";
+      }
+      
+      text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+      
+    }
     textFont(TEXT_FONT);
+    textSize(13);
     fill(0);
     textAlign(CENTER);
-    int text_x = (q_width)/2 + x;
-    int text_y = y+16;
-    text(text,text_x,text_y);
+    float text_w = 200;
+    float text_h = 70;
+    text(text,x+50,y+16,text_w,text_h);
     
-    int opt_height = text_y+20;
+    float textHeight = wordWrap(text, (int)text_w+50).size() * g.textLeading;
+    
+    float opt_height = y+16+textHeight+5;
     
     for(int i = 0; i < options.length; i++)
     {
       String option = options[i];
       
       //Make Button
-      int circle_x = x+20;
-      int circle_y = opt_height;
-      int circle_d = 30;
+      float circle_x = x+20;
+      float circle_y = opt_height;
+      int circle_d = 20;
       
       if(overCircle(circle_x, circle_y, circle_d))
       {
-        if (mousePressed && mouseButton == LEFT)
+        if (mousePressed && mouseButton == LEFT && editing)
         {
           fill(0);
           selectYourChoice(i);
@@ -97,88 +187,114 @@ class Question
         }
       }
       stroke(0);
-      ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+      if(!editing && yourChoice != null && yourChoice == i)
+      {
+        ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+      }
+      else if(editing)
+      {
+        ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+      }
       
       //Write Text
       textFont(OPTIONS_FONT);
       fill(0);
       textAlign(LEFT);
       
-      int option_x = x+40;
-      int option_y = opt_height+5;
+      float option_x = x+40;
+      float option_y = opt_height+4;
       text(option,option_x,option_y);
       
       //Increment
-      opt_height = opt_height + 30;
+      opt_height = opt_height + 25;
     }
     
-    stroke(0);
-    line(x+20, opt_height, x+q_width-20, opt_height);
-    
-    opt_height = opt_height + 30;
-    
-    textFont(TEXT_FONT);
-    fill(0);
-    textAlign(CENTER);
-    text_x = (q_width)/2 + x;
-    text_y = opt_height;
-    text("Answer(s) You Will Accept",text_x,text_y);
-    
-    opt_height = opt_height + 30;
-    
-    for(int i = 0; i < options.length; i++)
+    opt_height = opt_height-4;
+    if(editable)
     {
-      String option = options[i];
+      stroke(0);
+      line(x+20, opt_height, x+q_width-20, opt_height);
       
-      //Make Button
-      int circle_x = x+20;
-      int circle_y = opt_height;
-      int circle_d = 30;
+      opt_height = opt_height + 20;
       
-      if(overCircle(circle_x, circle_y, circle_d))
+      textFont(TEXT_FONT);
+      textSize(13);
+      fill(0);
+      textAlign(CENTER);
+      float text_x = (q_width)/2 + x;
+      float text_y = opt_height;
+      text("Answer(s) You Will Accept",text_x,text_y);
+      
+      opt_height = opt_height + 10;
+      for(int i = 0; i < options.length; i++)
       {
-        if (mousePressed && mouseButton == LEFT)
+        String option = options[i];
+        
+        //Make Button
+        float circle_x = x+20;
+        float circle_y = opt_height;
+        int circle_d = 20;
+        
+        if(overCircle(circle_x, circle_y, circle_d))
         {
-          fill(0);
-          selectTheirChoice(i);
+          if (mousePressed && mouseButton == LEFT && editing)
+          {
+            fill(0);
+            selectTheirChoice(i);
+          }
+          else
+          {
+            if(theirChoice != null && theirChoice == i)
+            {
+              fill(0);
+            }  
+            else
+            {
+              fill(204);
+            }
+          }
         }
         else
         {
           if(theirChoice != null && theirChoice == i)
           {
             fill(0);
-          }  
+          }
           else
           {
-            fill(204);
+            fill(255);
           }
         }
-      }
-      else
-      {
-        if(theirChoice != null && theirChoice == i)
+        stroke(0);
+        if(!editing && theirChoice != null && theirChoice == i)
         {
-          fill(0);
+          ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
         }
-        else
+        else if(editing)
         {
-          fill(255);
+          ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
         }
+        
+        //Write Text
+        textFont(OPTIONS_FONT);
+        fill(0);
+        textAlign(LEFT);
+        
+        float option_x = x+40;
+        float option_y = opt_height+4;
+        text(option,option_x,option_y);
+        
+        //Increment
+        opt_height = opt_height + 25;
       }
-      stroke(0);
-      ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
-      
-      //Write Text
-      textFont(OPTIONS_FONT);
-      fill(0);
-      textAlign(LEFT);
-      
-      int option_x = x+40;
-      int option_y = opt_height+5;
-      text(option,option_x,option_y);
-      
-      //Increment
-      opt_height = opt_height + 30;
+    }
+    if(currSwitch < switchInterval)
+    {
+      currSwitch = currSwitch+1;
+    }
+    else
+    {
+      okToSwitch = true;
     }
     
     fill(255);
@@ -196,11 +312,25 @@ class Question
   
   public String getYourChoice()
   {
+    if(yourChoice == null)
+      return null;
     return options[yourChoice];
   }
   
   public String getTheirChoice()
   {
+    if(theirChoice == null)
+      return null;
     return options[theirChoice];
+  }
+  
+  public void setEditing(boolean edit)
+  {
+    editing = edit;
+  }
+  
+  public boolean getEditing()
+  {
+    return editing;
   }
 }
