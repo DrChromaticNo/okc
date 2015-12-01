@@ -111,6 +111,38 @@ class Demographics
     changed = true;
   }
   
+  public Demographics copy()
+  {
+    Demographics copy = new Demographics(prefix + "_copy");
+    for(Gender g:gender)
+    {
+      copy.addGender(g);
+    }
+    for(Orientation o:orientation)
+    {
+      copy.addOrientation(o);
+    }
+    for(Ethnicity e:ethnicity)
+    {
+      copy.addEthnicity(e);
+    }
+    copy.setAge(age);
+    copy.setHeight(human_height);
+    
+    copy.setRelationship(relationship);
+    copy.setBodyType(bodytype);
+    copy.setReligion(religion);
+    copy.setSign(sign);
+    copy.setEducation(education);
+    
+    return copy;
+  }
+  
+  public void setEditing(boolean editing)
+  {
+    this.editing = editing;
+  }
+  
   public boolean getChanged()
   {
     if(changed)
@@ -961,12 +993,21 @@ void demoGender(int n)
   
   if(genders.contains(selectedGender))
   {
-    demo.removeGender(selectedGender);
+    if(demo.removeGender(selectedGender))
+    {
+      cp5.get(ScrollableList.class, "demoGender").getItem(n).put("color",oldColor);
+    }
+    
   }
   else
   {
-    demo.addGender(selectedGender);
+    if(demo.addGender(selectedGender))
+    {
+      cp5.get(ScrollableList.class, "demoGender").getItem(n).put("color",selected);
+    }
   }
+  
+  
    //<>//
 }
 
@@ -980,11 +1021,17 @@ void demoOrientation(int n)
   
   if(orientations.contains(selectedOrientation))
   {
-    demo.removeOrientation(selectedOrientation);
+    if(demo.removeOrientation(selectedOrientation))
+    {
+      cp5.get(ScrollableList.class, "demoOrientation").getItem(n).put("color",oldColor);
+    }
   }
   else
   {
-    demo.addOrientation(selectedOrientation);
+    if(demo.addOrientation(selectedOrientation))
+    {
+      cp5.get(ScrollableList.class, "demoOrientation").getItem(n).put("color",selected);
+    }
   }
   
 }
@@ -999,11 +1046,17 @@ void demoEthnicity(int n)
   
   if(ethnicities.contains(selectedEthnicity))
   {
-    demo.removeEthnicity(selectedEthnicity);
+    if(demo.removeEthnicity(selectedEthnicity))
+    {
+      cp5.get(ScrollableList.class, "demoEthnicity").getItem(n).put("color",oldColor);
+    }
   }
   else
   {
-    demo.addEthnicity(selectedEthnicity);
+    if(demo.addEthnicity(selectedEthnicity))
+    {
+      cp5.get(ScrollableList.class, "demoEthnicity").getItem(n).put("color",selected);
+    }
   }
   
 }

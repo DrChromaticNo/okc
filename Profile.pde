@@ -184,7 +184,7 @@ class Profile
     }
     
     //Remove final comma
-    if(subheading.charAt(subheading.length()-1) == ',')
+    if(subheading.length() != 0 && subheading.charAt(subheading.length()-1) == ',')
     {
       subheading = subheading
         .substring(0,subheading.length()-1);

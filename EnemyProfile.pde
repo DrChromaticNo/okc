@@ -244,6 +244,8 @@ class EnemyProfile
   private int currToggle;
   private int toggleInterval = 10;
   private int demoPage;
+  private int tickFrames = 2;
+  private int currTick;
   
   public EnemyProfile(String username, Profile player)
   {
@@ -261,6 +263,7 @@ class EnemyProfile
     okToToggle = true;
     currToggle = 0;
     demoPage = 1;
+    currTick = 0;
   }
   
   public void setTarget(Profile p)
@@ -410,14 +413,38 @@ class EnemyProfile
     }
     else
     {
-      fill(100);
+      fill(okcPrivateQ2);
     }
     
     if(player.questionsChanged() || firstDraw)
     {
       //This will be more complicated ideally
-      currMatch = getMatch();
       targetMatch = getMatch();
+    }
+    
+    if(currMatch != targetMatch)
+    {
+      if(tickFrames == currTick)
+      {
+        if(currMatch > targetMatch)
+        {
+          currMatch-=1;
+          currTick = 0;
+        }
+        else
+        {
+          currMatch+=1;
+          currTick=0;
+        }
+      }
+      else
+      {
+        currTick+=1;
+      }
+    }
+    else
+    {
+      currTick = 0;
     }
     
     String matchText = currMatch + "% Match";

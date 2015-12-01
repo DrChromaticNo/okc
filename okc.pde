@@ -2,8 +2,11 @@ Question testQ = new Question("Would you strongly prefer to date someone of your
 Question test2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, true);
 
 Question eTestQ = new Question("Would you strongly prefer to date someone of your own racial background/heritage?", new String[]{"Yes", "No", "Three","Four"}, false); //<>//
-Question eTest2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, false);
+Question eTest2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, false, true);
 Demographics demo = new Demographics("demo");
+Demographics initial;
+Demographics[] phases = new Demographics[3];
+int demoIndex = 0;
 
 Essay testE = new Essay("What I’m doing with my life", "the ambitions are: wake up, breathe, keep breathing\n \ni was working a soul crushing job for awhile but decided to give it up and go to grad school to work on something i'm passionate about. it's very scary because i'm kind of putting all my eggs in one basket but i am also happier than i have ever been in my entire life\n \nUPDATE: being in grad school is ALSO SOUL CRUSHING");
 Essay test2E = new Essay("I’m really good at", "knowing the right question to ask. i feel ill at how genuine i'm being");
@@ -29,6 +32,8 @@ final color okcButton = color(50,96,199);
 final color okcButton_mouseover = color(69,110,203);
 final color okcBackground = color(16,77,161);
 final color okcOffWhite = color(243,245,249);
+final color okcPrivateQ = color(233,234,238);
+final color okcPrivateQ2 = color(148,154,167);
 final color green = color(0,192,0);
 final color red = color(248,55,18);
 final int TIMER_LENGTH = 1 * 60 * 1000;
@@ -46,6 +51,15 @@ boolean unansweredQ = true;
 String username;
 String pass = "";
 String pass_confirm = "";
+
+CColor selected;
+CColor oldColor;
+
+boolean wasVisible;
+int oldMatch;
+
+int scoreFrames = 5;
+int scoreTick = 0;
 
 void setup()
 {
@@ -85,6 +99,12 @@ void setup()
   
   stage = 0;
   newStage = true;
+  
+  selected = new CColor();
+  selected.setBackground(color(255,0,0));
+  
+  oldColor = new CColor();
+  oldColor.setBackground(color(0,45,90));
 }
 
 void draw()
@@ -192,7 +212,128 @@ void draw()
   }
   else if(stage == 6)
   {
+    drawScreen6();
+    
+    if(newStage && stage == 6)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 7)
+  {
     if(newStage)
+    {
+      tween = 0;
+    }
+    drawScreen6();
+    fill(okcBackground);
+    stroke(okcPink1);
+    rect(0,-1,tween,screen_h+2);
+    drawScreen7(tween-screen_w,0);
+    
+    tween = tween+10;
+    
+    if(tween >= screen_w)
+    {
+      stage = 8;
+      newStage = true;
+    }
+    
+    if(newStage && stage == 7)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 8)
+  {
+    if(!wasVisible || oldMatch == 0)
+    {
+      //Popup Messages here probably
+      
+      //Check to see if the game is over or if there are more enemies
+      if(true)
+      {
+        stage = 9;
+      }
+      else
+      {
+        stage = 10;
+      }
+      newStage = true;
+    }
+    else if(scoreTick == scoreFrames)
+    {
+      oldMatch-=1;
+      score+=1;
+      scoreTick = 0;
+    }
+    else
+    {
+      scoreTick+=1;
+    }
+    
+    drawScreen7(0,0);
+    
+    if(newStage && stage == 8)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 9)
+  {
+    if(newStage)
+    {
+      tween = screen_w+1;
+      enemy.setTarget(player);
+    }
+    drawScreen6();
+    fill(okcBackground);
+    stroke(okcPink1);
+    rect(0,-1,tween,screen_h+2);
+    drawScreen7(tween-screen_w,0);
+    
+    tween = tween-10;
+    
+    if(tween <= 0)
+    {
+      stage = 6;
+      newStage = true;
+    }
+    if(newStage && stage == 9)
+    {
+      newStage = false;
+    }
+  }
+}
+
+void drawScreen7(float x, float y)
+{
+  fill(okcOffWhite);
+  noStroke();
+  rect(x+300,y+150,screen_w-600,400,7);
+  
+  if(wasVisible)
+  {
+    fill(okcPink1);
+  }
+  else
+  {
+    fill(okcPrivateQ2);
+  }
+  float text_x = x+(screen_w/2);
+  float text_y = y+200;
+  textAlign(CENTER);
+  textFont(MATCH_FONT);
+  text(oldMatch + "% Match",text_x,text_y);
+  
+  text_y = text_y+100;
+  fill(okcPink1);
+  text("Score: " + score, text_x,text_y);
+}
+
+void drawScreen6()
+{
+     if(newStage)
     {
       timerStart = millis();
     }
@@ -222,20 +363,15 @@ void draw()
     if(mins == 0 && secs == 0)
     {
       timerStart = millis();
-      if(enemy.getVisible())
-      {
-        score = score + enemy.getFinalMatch();
-      }
+      wasVisible = enemy.getVisible();
+      oldMatch = enemy.getFinalMatch();
+      player.getDemo().setEditing(false);
+      phases[demoIndex] = player.getDemo().copy();
+      demoIndex++;
       stage = 7;
       newStage = true;
     }
     text("Score: " + score,150,220);
-    
-    if(newStage && stage == 6)
-    {
-      newStage = false;
-    }
-  }
 }
 
 void drawScreen1()
@@ -566,6 +702,7 @@ void drawScreen3(float x, float y)
         {
            if(stage == 4)
            {
+             initial = demo.copy();
              stage = 5;
              newStage = true;
            }
