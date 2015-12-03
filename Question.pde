@@ -167,7 +167,7 @@ class Question
     }
     else
     {
-      float textHeight = wordWrap(text, (int)text_w+50).size() * g.textLeading;
+      float textHeight = wordWrap(text, (int)text_w).size() * g.textLeading;
       
       float opt_height = y+16+textHeight+5;
       

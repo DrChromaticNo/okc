@@ -1,5 +1,14 @@
-Question testQ = new Question("Would you strongly prefer to date someone of your own racial background/heritage?", new String[]{"Yes", "No", "Three","Four"}, true); //<>// //<>//
-Question test2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, true);
+Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>//
+Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, true);
+Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, true);
+Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true);
+Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, true);
+Question Q6 = new Question("Which of the following do you find msot liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, true);
+Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, true);
+Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, true);
+Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, true);
+Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, true);
+
 
 Question eTestQ = new Question("Would you strongly prefer to date someone of your own racial background/heritage?", new String[]{"Yes", "No", "Three","Four"}, false); //<>//
 Question eTest2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, false, true);
@@ -391,11 +400,6 @@ void drawScreen1()
     text(helpText, text_x, text_y);
     
     textSize(15);
-    text_x = text_x;
-    text_y = text_y + 60;
-    text("(Hit Enter to confirm or change a field)", text_x, text_y);
-    
-    textSize(15);
     textAlign(LEFT);
     text_x = screen_w/4;
     text_y = text_y + 120;
@@ -409,7 +413,8 @@ void drawScreen1()
            .setPosition(disp_x,disp_y)
            .setSize(500,20)
            .setFont(TEXT_FONT)
-           .setLabel("");
+           .setLabel("")
+           .setAutoClear(false);
     }
     else if(stage == 0)
     {
@@ -420,12 +425,10 @@ void drawScreen1()
       cp5.get(Textfield.class, "Username").setVisible(false);
     }
     
+    username = cp5.get(Textfield.class, "Username").getText();
+    
     text_x = text_x;
     text_y = text_y + 25;
-    if(username != null)
-    {
-      text(username,text_x+textWidth("Confirm Password:"),text_y);
-    }
     
     textSize(15);
     textAlign(LEFT);
@@ -442,7 +445,8 @@ void drawScreen1()
            .setSize(500,20)
            .setFont(TEXT_FONT)
            .setLabel("")
-           .setPasswordMode(true);
+           .setPasswordMode(true)
+           .setAutoClear(false);
     }
     else if(stage == 0)
     {
@@ -453,25 +457,10 @@ void drawScreen1()
       cp5.get(Textfield.class, "Password").setVisible(false);
     }
     
+    pass = cp5.get(Textfield.class, "Password").getText();
+    
     text_x = text_x;
     text_y = text_y + 25;
-    if(pass != null)
-    {
-      String star_pass = "";
-      for(int i = 0; i < pass.length(); i++)
-      {
-        star_pass = star_pass + "*";
-      }
-      if(pass.equals(pass_confirm))
-      {
-        fill(green);
-      }
-      else
-      {
-        fill(red);
-      }
-      text(star_pass,text_x+textWidth("Confirm Password:"),text_y);
-    }
     
     textSize(15);
     textAlign(LEFT);
@@ -489,7 +478,8 @@ void drawScreen1()
            .setSize(500,20)
            .setFont(TEXT_FONT)
            .setLabel("")
-           .setPasswordMode(true);
+           .setPasswordMode(true)
+           .setAutoClear(false);
     }
     else if(stage == 0)
     {
@@ -500,25 +490,10 @@ void drawScreen1()
       cp5.get(Textfield.class, "ConfirmPassword").setVisible(false);
     }
     
+    pass_confirm = cp5.get(Textfield.class, "ConfirmPassword").getText();
+    
     text_x = text_x;
     text_y = text_y + 25;
-    if(pass_confirm != null)
-    {
-      String star_pass = "";
-      for(int i = 0; i < pass_confirm.length(); i++)
-      {
-        star_pass = star_pass + "*";
-      }
-      if(pass.equals(pass_confirm))
-      {
-        fill(green);
-      }
-      else
-      {
-        fill(red);
-      }
-      text(star_pass,text_x+textWidth("Confirm Password:"),text_y);
-    }
     
     float button_w = 100;
     float button_h = 50;
@@ -530,7 +505,7 @@ void drawScreen1()
     float rect_x = (screen_w/2)-(button_w/2);
     float rect_y = screen_h-button_h-30;
     
-    if(username == null || pass == null || pass_confirm == null 
+    if(username == "" || pass == "" || pass_confirm == "" 
     || username.length() < 1 || pass.length() < 1 || pass_confirm.length() < 1 
     || !pass.equals(pass_confirm) || stage != 0)
     {
@@ -549,7 +524,7 @@ void drawScreen1()
              player = new Profile(username,pass);
              demo.addGender(Gender.MAN);
              demo.setAge(24);
-             Question[] questions = new Question[]{testQ,test2Q};
+             Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
              player.setQuestions(questions);
              player.setDemo(demo);
              newStage = true;
@@ -948,21 +923,6 @@ ArrayList wordWrap(String s, int maxWidth) {
   a.add(s);
 
   return a;
-}
-
-void Username(String theText)
-{
-  username = theText;
-}
-
-void Password(String theText)
-{
-  pass = theText;
-}
-
-void ConfirmPassword(String theText)
-{
-  pass_confirm = theText;
 }
 
 void drawGenderScreen2(float disp_x, float disp_y, String prefix)
