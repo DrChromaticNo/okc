@@ -1,24 +1,19 @@
-Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>//
+Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>// //<>//
 Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, true);
 Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, true);
-Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true);
+Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true); //<>//
 Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, true);
-Question Q6 = new Question("Which of the following do you find msot liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, true);
+Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, true);
 Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, true);
 Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, true);
 Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, true);
 Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, true);
-
-
-Question eTestQ = new Question("Would you strongly prefer to date someone of your own racial background/heritage?", new String[]{"Yes", "No", "Three","Four"}, false); //<>//
-Question eTest2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, false, true);
+ //<>//
 Demographics demo = new Demographics("demo");
 Demographics initial;
 Demographics[] phases = new Demographics[3];
+EnemyProfile[] enemies = new EnemyProfile[3];
 int demoIndex = 0;
-
-Essay testE = new Essay("What I’m doing with my life", "the ambitions are: wake up, breathe, keep breathing\n \ni was working a soul crushing job for awhile but decided to give it up and go to grad school to work on something i'm passionate about. it's very scary because i'm kind of putting all my eggs in one basket but i am also happier than i have ever been in my entire life\n \nUPDATE: being in grad school is ALSO SOUL CRUSHING");
-Essay test2E = new Essay("I’m really good at", "knowing the right question to ask. i feel ill at how genuine i'm being");
 
 Profile player;
 EnemyProfile enemy;
@@ -45,7 +40,7 @@ final color okcPrivateQ = color(233,234,238);
 final color okcPrivateQ2 = color(148,154,167);
 final color green = color(0,192,0);
 final color red = color(248,55,18);
-final int TIMER_LENGTH = 1 * 60 * 1000;
+final int TIMER_LENGTH = 2 * 60 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
 final int screen_w = 1300;
 final int screen_h = 700;
@@ -76,8 +71,8 @@ void setup()
   
   size(1300,700);
   MATCH_FONT = createFont("OpenSans.ttf",50,true);
-  TIMER_FONT = createFont("OpenSans.ttf",30,true);
-  SCORE_FONT = createFont("OpenSans.ttf",30,true);
+  TIMER_FONT = createFont("OpenSans.ttf",50,true);
+  SCORE_FONT = createFont("OpenSans.ttf",50,true);
   USERNAME_FONT = createFont("OpenSans.ttf",16,true);
   QUESTION_FONT = createFont("OpenSans.ttf",16,true);
   ANSWER_FONT = createFont("OpenSans.ttf",12,true);
@@ -89,22 +84,9 @@ void setup()
   TITLE_FONT = createFont("OpenSans.ttf",70,true);
   cp5 = new ControlP5(this);
   
-  eTestQ.selectYourChoice(0);
-  eTestQ.selectTheirChoice(0);
-  eTest2Q.selectYourChoice(1);
-  eTest2Q.selectTheirChoice(1);
-  Question[] eQuestions = new Question[]{eTestQ,eTest2Q};
-  enemy = new EnemyProfile("test",player);
-  enemy.setQuestions(eQuestions);
-  HashSet<Gender> enemyGender = new HashSet<Gender>();
-  enemyGender.add(Gender.WOMAN);
-  enemyGender.add(Gender.TWO_SPIRIT);
-  Preference p = enemy.getPreference();
-  p.setAgeRange(21,30);
-  enemy.getDemo().addGender(Gender.WOMAN);
+  EnemyProfile jmc = make_jughead_muscle_carl(player);
   
-  Essay[] es = new Essay[]{testE, test2E};
-  enemy.setEssays(es);
+  enemies[0] = jmc;
   
   stage = 0;
   newStage = true;
@@ -197,6 +179,7 @@ void draw()
     if(newStage)
     {
       tween = 0;
+      enemy = enemies[demoIndex];
       enemy.setTarget(player);
     }
     drawScreen3(0,0);
@@ -293,6 +276,7 @@ void draw()
     if(newStage)
     {
       tween = screen_w+1;
+      enemy = enemies[demoIndex];
       enemy.setTarget(player);
     }
     drawScreen6();
@@ -366,7 +350,7 @@ void drawScreen6()
     {
       secDisp = "0" + secDisp;
     }
-    text(minsDisp + ":" + secDisp,150,200);
+    text(minsDisp + ":" + secDisp,70,200);
     
     textFont(SCORE_FONT);
     if(mins == 0 && secs == 0)
@@ -380,7 +364,7 @@ void drawScreen6()
       stage = 7;
       newStage = true;
     }
-    text("Score: " + score,150,220);
+    text("Score: " + score,70,250);
 }
 
 void drawScreen1()
@@ -581,12 +565,38 @@ void drawScreen2(float x, float y)
   drawRelationshipScreen2(col1,row1,prefix);
   row1 = row1-40;
   drawHeightScreen2(col1,row1,prefix);
+  int human_height = 0;
+  int feet = 0;
+  int inches = 0;
+  try
+  {
+    feet = Integer.parseInt(cp5.get(Textfield.class, prefix+"Feet").getText());
+    feet = feet*12;
+  }
+  catch(Exception e)
+  {}
+  
+  try
+  {
+    inches = Integer.parseInt(cp5.get(Textfield.class, prefix+"Inches").getText());
+  }
+  catch(Exception e)
+  {}
+  human_height = feet+inches;
   row1 = row1-40;
   drawEthnicityScreen2(col1,row1,prefix);
   row1 = row1-40;
   drawOrientationScreen2(col1,row1,prefix);
   row1 = row1-40;
   drawAgeScreen2(col1,row1,prefix);
+  int age = -1;
+  try
+  {
+    age = Integer.parseInt(cp5.get(Textfield.class, prefix+"Age").getText());
+  }
+  catch(Exception e)
+  {}
+  
   row1 = row1-40;
   drawGenderScreen2(col1,row1,prefix);
   
@@ -598,7 +608,7 @@ void drawScreen2(float x, float y)
   rect_x = (rect_x+rect_w-5)-(button_w);
   rect_y = (rect_y+rect_h)-button_h-5;
     
-    if(player.getDemo().getGenders().isEmpty() || player.getDemo().getAge() <= 0 || stage > 2)
+    if(player.getDemo().getGenders().isEmpty() || age <= 0 || stage > 2)
     {
       fill(100);
     }
@@ -612,6 +622,11 @@ void drawScreen2(float x, float y)
            if(stage == 2)
            {
              stage = 3;
+             player.getDemo().setAge(age);
+             if(human_height > 0)
+             {
+               player.getDemo().setHeight(human_height);
+             }
              newStage = true;
            }
         }
@@ -972,16 +987,10 @@ void drawGenderScreen2(float disp_x, float disp_y, String prefix)
 void drawAgeScreen2(float disp_x, float disp_y, String prefix)
 {
     String ageDescription = "Age:";
-    int age = player.getDemo().getAge();
-    
-    if(age > 0)
-    {
-      ageDescription = ageDescription + " " + age;
-    }
     
     text(ageDescription, disp_x, disp_y);
     
-    disp_x = disp_x + (int) textWidth(ageDescription) + 5;
+    disp_x = disp_x + (int) textWidth(ageDescription) + 5; 
     disp_y = disp_y - 10;
     
       if(cp5.get(Textfield.class, prefix+"Age") == null)
@@ -1004,6 +1013,7 @@ void drawAgeScreen2(float disp_x, float disp_y, String prefix)
           }
         cp5.get(Textfield.class, prefix+"Age").setPosition(disp_x, disp_y);
       }
+      
 }
 
 void drawOrientationScreen2(float disp_x, float disp_y, String prefix)
@@ -1103,25 +1113,6 @@ void drawEthnicityScreen2(float disp_x, float disp_y, String prefix)
 void drawHeightScreen2(float disp_x, float disp_y, String prefix)
 {
     String heightDescription = "Height: ";
-    int human_height = player.getDemo().getHeight();
-    
-    int feet = human_height/12;
-    int inches = human_height%12;
-    
-    if(feet > 0)
-    {
-      heightDescription = heightDescription + feet + " feet";
-      if(inches > 0)
-      {
-        heightDescription = heightDescription + ", ";
-      }
-    }
-    
-    if(inches > 0)
-    {
-      heightDescription = heightDescription + inches + " inches";
-    }
-    
     text(heightDescription, disp_x, disp_y);
     
     disp_x = disp_x + (int) textWidth(heightDescription) + 5; 
@@ -1428,3 +1419,116 @@ void drawEducationScreen2(float disp_x, float disp_y, String prefix)
         cp5.get(ScrollableList.class, prefix+"Education").setPosition(disp_x, disp_y);
       }
   }
+  
+EnemyProfile make_jughead_muscle_carl(Profile target)
+{
+  EnemyProfile jmc = new EnemyProfile("jughead_muscle_carl", target);
+  
+  //First, demos
+  Demographics jmcDemo = jmc.getDemo();
+  jmcDemo.addGender(Gender.MAN);
+  jmcDemo.addGender(Gender.CIS_MAN);
+  jmcDemo.setAge(28);
+  jmcDemo.addOrientation(Orientation.STRAIGHT);
+  jmcDemo.addEthnicity(Ethnicity.WHITE);
+  jmcDemo.setHeight(6*12);
+  jmcDemo.setRelationship(RelationshipType.STRICTLY_MONOGAMOUS);
+  jmcDemo.setBodyType(BodyType.ATHLETIC);
+  jmcDemo.setSign(Sign.TAURUS);
+  jmcDemo.setReligion(Religion.CHRISTIANITY);
+  jmcDemo.setEducation(Education.UNIVERSITY);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false); //<>//
+  
+  Q1.selectYourChoice(1);
+  Q1.selectTheirChoice(1);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(1);
+  Q2.selectTheirChoice(1);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false);
+  
+  Q3.selectYourChoice(1);
+  Q3.selectTheirChoice(1);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(1);
+  Q4.selectTheirChoice(1);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(1);
+  Q5.selectTheirChoice(1);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false);
+  
+  Q6.selectYourChoice(1);
+  Q6.selectTheirChoice(3);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(0);
+  Q7.selectYourChoice(0);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(0);
+  Q8.selectTheirChoice(0);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false);
+  
+  Q9.selectYourChoice(0);
+  Q9.selectTheirChoice(0);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  jmc.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference jmcPref = jmc.getPreference();
+  HashSet<Gender> genderPref = new HashSet<Gender>();
+  genderPref.add(Gender.WOMAN);
+  genderPref.add(Gender.CIS_WOMAN);
+  
+  jmcPref.setGenders(genderPref);
+  jmcPref.setAgeRange(21,28);
+  
+  HashSet<Orientation> orientationPref = new HashSet<Orientation>();
+  orientationPref.add(Orientation.BISEXUAL);
+  orientationPref.add(Orientation.STRAIGHT);
+  orientationPref.add(Orientation.QUESTIONING);
+  orientationPref.add(Orientation.SAPIOSEXUAL);
+  orientationPref.add(Orientation.HETEROFLEXIBLE);
+  jmcPref.setOrientations(orientationPref);
+  
+  HashSet<Ethnicity> ethnicityPref = new HashSet<Ethnicity>();
+  ethnicityPref.add(Ethnicity.WHITE);
+  jmcPref.setEthnicities(ethnicityPref);
+  
+  jmcPref.setHeightRange(0,6*12);
+  
+  HashSet<Religion> religionPref = new HashSet<Religion>();
+  religionPref.add(Religion.CHRISTIANITY);
+  
+  
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary", "LAX!  My god is my light and true fire.\nEqual Opportunity Sex God.  It isn't hot to be tall, unless you're me.  Support our troops.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  jmc.setEssays(essays);
+  
+  return jmc;
+}
