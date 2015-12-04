@@ -1170,7 +1170,7 @@ void demoEducation(int n)
                              .getItem(n).get("name"));
   
   demo.setEducation(selectedEducation);
-  cp5.get(ScrollableList.class, "demo").close();
+  cp5.get(ScrollableList.class, "demoEducation").close();
 }
 
 void demoAge(String theText)

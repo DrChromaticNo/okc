@@ -452,6 +452,17 @@ class EnemyProfile
     text(matchText, match_x, match_y);
     textAlign(CENTER);
     
+    textFont(USERNAME_SUBTITLE_FONT);
+    if(visible)
+    {
+      text("Visible",match_x,match_y+15);
+    }
+    else
+    {
+      text("Invisible",match_x,match_y+15);
+    }
+    
+    
     String lookingForDescription = "Looking for:";
     
     if(pref.getGenders() == null)
@@ -486,7 +497,7 @@ class EnemyProfile
     textAlign(CENTER);
     
     float looking_x = x+50;
-    float looking_y = match_y + 30;
+    float looking_y = match_y + 40;
     
     text(lookingForDescription,looking_x,looking_y,200,100);
     

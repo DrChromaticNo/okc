@@ -42,7 +42,7 @@ final color green = color(0,192,0);
 final color red = color(248,55,18);
 final int TIMER_LENGTH = 2 * 60 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
-final int screen_w = 1300;
+final int screen_w = 1250;
 final int screen_h = 700;
 int timerStart;
 int score;
@@ -69,7 +69,7 @@ void setup()
 {
   setupMaps();
   
-  size(1300,700);
+  size(1250,700);
   MATCH_FONT = createFont("OpenSans.ttf",50,true);
   TIMER_FONT = createFont("OpenSans.ttf",50,true);
   SCORE_FONT = createFont("OpenSans.ttf",50,true);
@@ -85,8 +85,10 @@ void setup()
   cp5 = new ControlP5(this);
   
   EnemyProfile jmc = make_jughead_muscle_carl(player);
+  EnemyProfile BR = make_Book_Reader(player);
   
-  enemies[0] = jmc;
+  enemies[0] = BR;
+  enemies[1] = jmc;
   
   stage = 0;
   newStage = true;
@@ -187,7 +189,19 @@ void draw()
     stroke(okcPink1);
     rect(0,-1,tween,screen_h+2);
     player.drawAt(tween-screen_w-10,10);
-    enemy.drawAt(tween-screen_w-10,320);
+    
+    textFont(TEXT_FONT);
+    textSize(20);
+    textAlign(CENTER);
+    fill(okcPink1);
+    text("^YOU^",(tween-screen_w/2),330);
+    
+    stroke(okcPink1);
+    line(0,345,tween,345);
+    
+    text("vTHEMv",tween-screen_w/2,370);
+    
+    enemy.drawAt(tween-screen_w-10,380);
     
     tween = tween+10;
     
@@ -331,7 +345,19 @@ void drawScreen6()
       timerStart = millis();
     }
     player.drawAt(10,10);
-    enemy.drawAt(10,320);
+    
+    textFont(TEXT_FONT);
+    textSize(20);
+    textAlign(CENTER);
+    fill(okcPink1);
+    text("^YOU^",screen_w/2,330);
+    
+    stroke(okcPink1);
+    line(0,345,screen_w,345);
+    
+    text("vTHEMv",screen_w/2,370);
+    
+    enemy.drawAt(10,380);
     
     textFont(TIMER_FONT);
     textAlign(LEFT);
@@ -506,8 +532,6 @@ void drawScreen1()
            {
              stage = 1;
              player = new Profile(username,pass);
-             demo.addGender(Gender.MAN);
-             demo.setAge(24);
              Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
              player.setQuestions(questions);
              player.setDemo(demo);
@@ -965,10 +989,31 @@ void drawGenderScreen2(float disp_x, float disp_y, String prefix)
       .setPosition(disp_x, disp_y)
       .setBarHeight(20)
       .setItemHeight(20)
-      .addItems(genderToString.values().toArray(new String[0]))
+      .addItem("Woman",0)
+      .addItem("Man",1)
+      .addItem("Agender",2)
+      .addItem("Androgynous",3)
+      .addItem("Bigender",4)
+      .addItem("Cis Man",5)
+      .addItem("Cis Woman",6)
+      .addItem("Genderfluid",7)
+      .addItem("Genderqueer",8)
+      .addItem("Gender Nonconforming",9)
+      .addItem("Hijra",10)
+      .addItem("Intersex",11)
+      .addItem("Non-Binary",12)
+      .addItem("Other",13)
+      .addItem("Pangender",14)
+      .addItem("Transfeminine",15)
+      .addItem("Transgender",16)
+      .addItem("Transmasculine",17)
+      .addItem("Trans Man",18)
+      .addItem("Trans Woman",19)
+      .addItem("Two Spirit",20)
       .setType(ScrollableList.LIST)
       .setLabel("Gender")
       .setOpen(false);
+      
   }
   else
   {
@@ -1531,4 +1576,102 @@ EnemyProfile make_jughead_muscle_carl(Profile target)
   jmc.setEssays(essays);
   
   return jmc;
+}
+
+EnemyProfile make_Book_Reader(Profile target)
+{
+  EnemyProfile BR = new EnemyProfile("Book_Reader", target);
+  
+  //First, demos
+  Demographics BRDemo = BR.getDemo();
+  BRDemo.addGender(Gender.TRANSFEMININE);
+  BRDemo.setAge(32);
+  BRDemo.addOrientation(Orientation.QUEER);
+  BRDemo.addOrientation(Orientation.SAPIOSEXUAL);
+  BRDemo.setHeight(5*12 + 7);
+  BRDemo.setRelationship(RelationshipType.MOSTLY_NONMONOGAMOUS);
+  BRDemo.setBodyType(BodyType.SKINNY);
+  BRDemo.setSign(Sign.PISCES);
+  BRDemo.setReligion(Religion.ATHEISM);
+  BRDemo.setEducation(Education.POST_GRAD);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
+  
+  Q1.selectYourChoice(0);
+  Q1.selectTheirChoice(0);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(0);
+  Q2.selectTheirChoice(0);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false, true);
+  
+  Q3.selectYourChoice(2);
+  Q3.selectTheirChoice(2);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(1);
+  Q4.selectTheirChoice(1);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(0);
+  Q5.selectTheirChoice(0);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false, true);
+  
+  Q6.selectYourChoice(2);
+  Q6.selectTheirChoice(2);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(1);
+  Q7.selectYourChoice(1);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(1);
+  Q8.selectTheirChoice(1);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false, true);
+  
+  Q9.selectYourChoice(1);
+  Q9.selectTheirChoice(1);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  BR.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference BRPref = BR.getPreference();
+  BRPref.setAgeRange(25,40);
+  
+  HashSet<Religion> religionPref = new HashSet<Religion>();
+  religionPref.add(Religion.AGNOSTICISM);
+  religionPref.add(Religion.ATHEISM);
+  BRPref.setReligions(religionPref);
+  
+  HashSet<Education> educationPref = new HashSet<Education>();
+  educationPref.add(Education.UNIVERSITY);
+  educationPref.add(Education.POST_GRAD);
+  BRPref.setEducations(educationPref);
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary", "Voracious reader.  PhD Candidate in Medieval Literature.  Magic and god aren't real.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  BR.setEssays(essays);
+  
+  return BR;
 }
