@@ -86,9 +86,11 @@ void setup()
   
   EnemyProfile jmc = make_jughead_muscle_carl(player);
   EnemyProfile BR = make_Book_Reader(player);
+  EnemyProfile wis = make_Wicca_is_Sicca(player);
   
-  enemies[0] = BR;
-  enemies[1] = jmc;
+  enemies[0] = wis;
+  enemies[1] = BR;
+  enemies[2] = jmc;
   
   stage = 0;
   newStage = true;
@@ -1088,10 +1090,21 @@ void drawOrientationScreen2(float disp_x, float disp_y, String prefix)
         .setPosition(disp_x, disp_y)
         .setBarHeight(20)
         .setItemHeight(20)
-        .addItems(orientationToString.values().toArray(new String[0]))
+        .addItem("Straight",0)
+        .addItem("Gay",1)
+        .addItem("Bisexual",2)
+        .addItem("Asexual",3)
+        .addItem("Demisexual",4)
+        .addItem("Heteroflexible",5)
+        .addItem("Lesbian",6)
+        .addItem("Pansexual",7)
+        .addItem("Queer",8)
+        .addItem("Questioning",9)
+        .addItem("Sapiosexual",10)
         .setType(ScrollableList.LIST)
         .setLabel("Orientation")
         .setOpen(false);
+        
       }
       else
       {
@@ -1518,7 +1531,7 @@ EnemyProfile make_jughead_muscle_carl(Profile target)
   Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
   
   Q7.selectYourChoice(0);
-  Q7.selectYourChoice(0);
+  Q7.selectTheirChoice(0);
   
   Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
   
@@ -1630,7 +1643,7 @@ EnemyProfile make_Book_Reader(Profile target)
   Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
   
   Q7.selectYourChoice(1);
-  Q7.selectYourChoice(1);
+  Q7.selectTheirChoice(1);
   
   Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
   
@@ -1674,4 +1687,124 @@ EnemyProfile make_Book_Reader(Profile target)
   BR.setEssays(essays);
   
   return BR;
+}
+
+EnemyProfile make_Wicca_is_Sicca(Profile target)
+{
+  EnemyProfile wis = new EnemyProfile("Wicca_is_Sicca", target);
+  
+  //First, demos
+  Demographics wisDemo = wis.getDemo();
+  wisDemo.addGender(Gender.ANDROGYNOUS);
+  wisDemo.setAge(40);
+  wisDemo.addOrientation(Orientation.QUEER);
+  wisDemo.addEthnicity(Ethnicity.BLACK);
+  wisDemo.addEthnicity(Ethnicity.OTHER);
+  wisDemo.setHeight(5*12 + 5);
+  wisDemo.setRelationship(RelationshipType.MOSTLY_MONOGAMOUS);
+  wisDemo.setBodyType(BodyType.A_LITTLE_EXTRA);
+  wisDemo.setSign(Sign.VIRGO);
+  wisDemo.setReligion(Religion.OTHER);
+  wisDemo.setEducation(Education.UNIVERSITY);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
+  
+  Q1.selectYourChoice(0);
+  Q1.selectTheirChoice(0);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(0);
+  Q2.selectTheirChoice(0);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false);
+  
+  Q3.selectYourChoice(2);
+  Q3.selectTheirChoice(2);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(0);
+  Q4.selectTheirChoice(0);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(0);
+  Q5.selectTheirChoice(0);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false);
+  
+  Q6.selectYourChoice(3);
+  Q6.selectTheirChoice(3);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(1);
+  Q7.selectTheirChoice(1);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(1);
+  Q8.selectTheirChoice(1);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false);
+  
+  Q9.selectYourChoice(2);
+  Q9.selectTheirChoice(2);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  wis.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference wisPref = wis.getPreference();
+  HashSet<Gender> genderPref = new HashSet<Gender>();
+  genderPref.add(Gender.AGENDER);
+  genderPref.add(Gender.ANDROGYNOUS);
+  genderPref.add(Gender.BIGENDER);
+  genderPref.add(Gender.TWO_SPIRIT);
+  genderPref.add(Gender.GENDER_NONCONFORMING);
+  genderPref.add(Gender.INTERSEX);
+  genderPref.add(Gender.NON_BINARY);
+  genderPref.add(Gender.GENDERQUEER);
+  genderPref.add(Gender.GENDERFLUID);
+  genderPref.add(Gender.PANGENDER);
+  
+  wisPref.setGenders(genderPref);
+  wisPref.setAgeRange(35,45);
+  
+  HashSet<Religion> religionPref = new HashSet<Religion>();
+  religionPref.add(Religion.OTHER);
+  wisPref.setReligions(religionPref);
+  
+  HashSet<Sign> signPref = new HashSet<Sign>();
+  signPref.add(Sign.TAURUS);
+  signPref.add(Sign.CANCER);
+  signPref.add(Sign.SCORPIO);
+  signPref.add(Sign.CAPRICORN);
+  wisPref.setSign(signPref);
+  
+  HashSet<RelationshipType> rlPref = new HashSet<RelationshipType>();
+  rlPref.add(RelationshipType.STRICTLY_MONOGAMOUS);
+  rlPref.add(RelationshipType.MOSTLY_MONOGAMOUS);
+  
+  wisPref.setRTypes(rlPref);
+  
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summar","Not interested if you find your gender on a line and our signs need to be compatible.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  wis.setEssays(essays);
+  
+  return wis;
 }

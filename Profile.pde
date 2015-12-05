@@ -107,6 +107,13 @@ class Profile
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
     
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),x+150,y+10);
+    
      rect_x = x + 300 - button_w;
      rect_y = y;
     
@@ -260,6 +267,13 @@ class Profile
     
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),question_x+150,question_y+10);
     
      rect_x = question_x + 300 - button_w;
      rect_y = question_y;

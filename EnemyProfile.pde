@@ -499,7 +499,7 @@ class EnemyProfile
     float looking_x = x+50;
     float looking_y = match_y + 40;
     
-    text(lookingForDescription,looking_x,looking_y,200,100);
+    text(lookingForDescription,looking_x,looking_y,200,200);
     
     //Now, essays
     float essay_x = x+310;
@@ -545,6 +545,13 @@ class EnemyProfile
     
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((eIndex+1) + "/" + (essays.length),essay_x+200,essay_y+10);
     
     rect_x = essay_x + 400 - button_w;
     rect_y = essay_y;
@@ -635,6 +642,13 @@ class EnemyProfile
     
     buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),question_x+150,question_y+10);
     
      rect_x = question_x + 300 - button_w;
      rect_y = question_y;
