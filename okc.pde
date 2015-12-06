@@ -1,14 +1,16 @@
-Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>// //<>//
+import java.util.Random;
+
+Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>//
 Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, true);
 Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, true);
-Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true); //<>//
+Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true);
 Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, true);
 Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, true);
 Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, true);
 Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, true);
 Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, true);
 Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, true);
- //<>//
+
 Demographics demo = new Demographics("demo");
 Demographics initial;
 Demographics[] phases = new Demographics[3];
@@ -40,7 +42,8 @@ final color okcPrivateQ = color(233,234,238);
 final color okcPrivateQ2 = color(148,154,167);
 final color green = color(0,192,0);
 final color red = color(248,55,18);
-final int TIMER_LENGTH = 2 * 60 * 1000;
+final color red_mouseover = color(251,142,123);
+final int TIMER_LENGTH = 2 * 10 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
 final int screen_w = 1250;
 final int screen_h = 700;
@@ -64,6 +67,10 @@ int oldMatch;
 
 int scoreFrames = 5;
 int scoreTick = 0;
+
+ArrayList<PopupMessage> popups;
+ArrayList<float[]> popupLocs;
+boolean firstPops;
 
 void setup()
 {
@@ -254,20 +261,47 @@ void draw()
   }
   else if(stage == 8)
   {
-    if(!wasVisible || oldMatch == 0)
+    if(newStage && stage == 8)
     {
-      //Popup Messages here probably
-      
-      //Check to see if the game is over or if there are more enemies
-      if(true)
+      firstPops = true;
+      if(demoIndex == 1)
       {
-        stage = 9;
+        generatePopups(initial,phases[demoIndex-1]);
       }
       else
       {
-        stage = 10;
+        generatePopups(phases[demoIndex-2],phases[demoIndex-1]);
       }
-      newStage = true;
+    }
+    drawScreen7(0,0);
+    
+    boolean allPopupsClosed = true;
+    for(PopupMessage p:popups)
+    {
+      if(p.getVisible() == true)
+      {
+        allPopupsClosed = false;
+      }
+    }
+    
+    if(!wasVisible || oldMatch == 0 )
+    {
+      for(int i = 0; i < popups.size(); i++)
+      {
+        popups.get(i).drawAt(popupLocs.get(i)[0],popupLocs.get(i)[1]);
+      }
+      firstPops = false;
+      
+      if(demoIndex < 2 && allPopupsClosed)
+      {
+        stage = 9;
+        newStage = true;
+      }
+      else if(allPopupsClosed)
+      {
+        stage = 10;
+        newStage = true;
+      }
     }
     else if(scoreTick == scoreFrames)
     {
@@ -279,8 +313,6 @@ void draw()
     {
       scoreTick+=1;
     }
-    
-    drawScreen7(0,0);
     
     if(newStage && stage == 8)
     {
@@ -338,6 +370,8 @@ void drawScreen7(float x, float y)
   text_y = text_y+100;
   fill(okcPink1);
   text("Score: " + score, text_x,text_y);
+  
+  
 }
 
 void drawScreen6()
@@ -1582,7 +1616,7 @@ EnemyProfile make_jughead_muscle_carl(Profile target)
   
   //Essays
   
-  Essay about = new Essay("My self-summary", "LAX!  My god is my light and true fire.\nEqual Opportunity Sex God.  It isn't hot to be tall, unless you're me.  Support our troops.");
+  Essay about = new Essay("My self-summary", "LAX!  My god is my light and true fire.\nEqual Opportunity Sex God (within reason).  It isn't hot to be tall, unless you're me.  Support our troops.");
   
   Essay[] essays = new Essay[]{about};
   
@@ -1800,11 +1834,65 @@ EnemyProfile make_Wicca_is_Sicca(Profile target)
   
   //Essays
   
-  Essay about = new Essay("My self-summar","Not interested if you find your gender on a line and our signs need to be compatible.");
+  Essay about = new Essay("My self-summar","Not interested if you find your gender on a line. Our signs have GOT to be compatible.");
   
   Essay[] essays = new Essay[]{about};
   
   wis.setEssays(essays);
   
   return wis;
+}
+
+public void generatePopups(Demographics before, Demographics after)
+{
+  Random random = new Random(); //<>//
+  popups = new ArrayList<PopupMessage>();
+  popupLocs = new ArrayList<float[]>();
+  
+  if(before.getHeight() < after.getHeight())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "height_queen", "I love how tall you're becoming! So delciously tall!!!  When they're tall, I want to bawl!"));
+  }
+  else if(before.getHeight() > after.getHeight())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "short_stack", "Shorther!  Shooorter!!! Sortter!!  I love 'em shhort"));
+  }
+  
+  if(before.getAge() < after.getAge())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "death", "You're older than you were before, you creep closer to death......."));
+  }
+  else if(before.getAge() > after.getAge())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "spiffy_jim", "Um... people only age in the opposite direction than the way you're aging.  What gives?"));
+  }
+  
+  Set<Gender> beforeG = before.getGenders();
+  Set<Gender> afterG = after.getGenders();
+  
+  if(!beforeG.contains(Gender.WOMAN) && !beforeG.contains(Gender.TRANS_WOMAN) && !beforeG.contains(Gender.TRANSFEMININE) 
+  && !beforeG.contains(Gender.BIGENDER) && !beforeG.contains(Gender.TWO_SPIRIT) && !beforeG.contains(Gender.HIJRA))
+  {
+    if(afterG.contains(Gender.WOMAN) || afterG.contains(Gender.TRANS_WOMAN) || afterG.contains(Gender.TRANSFEMININE))
+    {
+      popups.add(new PopupMessage(player.getUsername(), "femmme_fatale", "i see you're getting in touch with your femininity.  hmu if you want someone to REALLY get in touch with your femininity ;)");
+    }
+  }
+  
+  if(!beforeG.contains(Gender.MAN) && !beforeG.contains(Gender.TRANS_MAN) && !beforeG.contains(Gender.TRANSMASCULINE) 
+  && !beforeG.contains(Gender.BIGENDER) && !beforeG.contains(Gender.TWO_SPIRIT) && !beforeG.contains(Gender.HIJRA))
+  {
+    if(afterG.contains(Gender.MAN) || afterG.contains(Gender.TRANS_MAN) || afterG.contains(Gender.TRANSMASCULINE))
+    {
+      popups.add(new PopupMessage(player.getUsername(), "chad_the_dude_hugger", "HULK SMASH! haha no just kidding, but welcome to a more masculine world.  let's get ripped from our pecs to our toes"));
+    }
+  }
+  
+  
+  for(int i = 0; i < popups.size(); i++)
+  {
+    popupLocs.add(new float[2]);
+    popupLocs.get(i)[0] = random.nextInt(screen_w-500);
+    popupLocs.get(i)[1] = random.nextInt(screen_h-400);
+  }
 }
