@@ -43,7 +43,7 @@ final color okcPrivateQ2 = color(148,154,167);
 final color green = color(0,192,0);
 final color red = color(248,55,18);
 final color red_mouseover = color(251,142,123);
-final int TIMER_LENGTH = 2 * 10 * 1000;
+final int TIMER_LENGTH = 2 * 60 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
 final int screen_w = 1250;
 final int screen_h = 700;
@@ -292,7 +292,7 @@ void draw()
       }
       firstPops = false;
       
-      if(demoIndex < 2 && allPopupsClosed)
+      if(demoIndex < 3 && allPopupsClosed)
       {
         stage = 9;
         newStage = true;
@@ -345,13 +345,50 @@ void draw()
       newStage = false;
     }
   }
+  else if (stage == 10)
+  {
+    if(newStage)
+    {
+      tween = 0;
+    }
+    drawScreen7(0,0);
+    fill(okcBackground);
+    stroke(okcPink1);
+    rect(-1,0,screen_w+2,tween);
+    drawScreen10(0,tween-screen_h);
+    tween=tween+10;
+    
+    if(tween >= screen_h)
+    {
+      stage = 11;
+      newStage = true;
+    }
+    
+    if(newStage && stage == 10)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 11)
+  {
+    drawScreen10(0,0);
+  }
+}
+
+void drawScreen10(float x, float y)
+{
+  fill(255);
+  textFont(TEXT_FONT);
+  textAlign(CENTER);
+  textSize(100);
+  text("The End",x+(screen_w/2),y+(screen_h/2));
 }
 
 void drawScreen7(float x, float y)
 {
   fill(okcOffWhite);
   noStroke();
-  rect(x+300,y+150,screen_w-600,400,7);
+  rect(x+300,y+150,screen_w-600,200,7);
   
   if(wasVisible)
   {
@@ -1182,10 +1219,19 @@ void drawEthnicityScreen2(float disp_x, float disp_y, String prefix)
         .setPosition(disp_x, disp_y)
         .setBarHeight(20)
         .setItemHeight(20)
-        .addItems(ethnicityToString.values().toArray(new String[0]))
+        .addItem("Asian",0)
+        .addItem("Native American",1)
+        .addItem("Indian",2)
+        .addItem("Middle Eastern",3)
+        .addItem("Hispanic/Latin",4)
+        .addItem("White",5)
+        .addItem("Black",6)
+        .addItem("Pacific Islander",7)
+        .addItem("Other",8)
         .setType(ScrollableList.LIST)
         .setLabel("Ethnicity")
         .setOpen(false);
+        
       }
       else
       {
@@ -1835,6 +1881,7 @@ EnemyProfile make_Wicca_is_Sicca(Profile target)
   //Essays
   
   Essay about = new Essay("My self-summar","Not interested if you find your gender on a line. Our signs have GOT to be compatible.");
+  Essay qs = new Essay("Questions, Complaints, Improvements?", "There's no Wicca option in the religions menu!");
   
   Essay[] essays = new Essay[]{about};
   
@@ -1851,7 +1898,7 @@ public void generatePopups(Demographics before, Demographics after)
   
   if(before.getHeight() < after.getHeight())
   {
-    popups.add(new PopupMessage(player.getUsername(), "height_queen", "I love how tall you're becoming! So delciously tall!!!  When they're tall, I want to bawl!"));
+    popups.add(new PopupMessage(player.getUsername(), "height_queen", "I love how tall you're becoming! So delciously tall!!!  When they're tall... I want to bawl!"));
   }
   else if(before.getHeight() > after.getHeight())
   {
@@ -1875,7 +1922,7 @@ public void generatePopups(Demographics before, Demographics after)
   {
     if(afterG.contains(Gender.WOMAN) || afterG.contains(Gender.TRANS_WOMAN) || afterG.contains(Gender.TRANSFEMININE))
     {
-      popups.add(new PopupMessage(player.getUsername(), "femmme_fatale", "i see you're getting in touch with your femininity.  hmu if you want someone to REALLY get in touch with your femininity ;)");
+      popups.add(new PopupMessage(player.getUsername(), "femmme_fatale", "i see you're getting in touch with your femininity.  hmu if you want someone to REALLY get in touch with your femininity ;)"));
     }
   }
   
@@ -1887,6 +1934,35 @@ public void generatePopups(Demographics before, Demographics after)
       popups.add(new PopupMessage(player.getUsername(), "chad_the_dude_hugger", "HULK SMASH! haha no just kidding, but welcome to a more masculine world.  let's get ripped from our pecs to our toes"));
     }
   }
+  
+  if(before.getReligion() != after.getReligion())
+  {
+    if(before.getReligion() == null)
+    {
+      popups.add(new PopupMessage(player.getUsername(), "Guru_Child", "I see you've begun a path along " + religionToString.get(after.getReligion()) + ". I wish you luck on your spiritual journey."));
+    }
+    else
+    {
+      popups.add(new PopupMessage(player.getUsername(), "Guru_Child", "Abandoning " + religionToString.get(before.getReligion()) + " must not have been an easy choice.  I hope " +
+        religionToString.get(before.getReligion()) + " will bring you fulfillment."));
+    }
+  }
+  
+  if(before.getEthnicities().size() <=3 && after.getEthnicities().size() > 3)
+  {
+    String message = "I see you're ";
+    
+    for(Ethnicity e: after.getEthnicities())
+    {
+      message = message + ethnicityToString.get(e) + ", ";
+    }
+    
+    message = message + "but where are you FROM, really?";
+    
+    popups.add(new PopupMessage(player.getUsername(), "carhorn_leghorn", message));
+  }
+  
+  
   
   
   for(int i = 0; i < popups.size(); i++)
