@@ -72,6 +72,8 @@ ArrayList<PopupMessage> popups;
 ArrayList<float[]> popupLocs;
 boolean firstPops;
 
+boolean draw35;
+
 void setup()
 {
   setupMaps();
@@ -107,6 +109,8 @@ void setup()
   
   oldColor = new CColor();
   oldColor.setBackground(color(0,45,90));
+  
+  draw35 = false;
 }
 
 void draw()
@@ -179,7 +183,14 @@ void draw()
   }
   else if(stage == 4)
   {
-    drawScreen3(0,0);
+    if(draw35)
+    {
+      drawScreen35(0,0);
+    }
+    else
+    {
+      drawScreen3(0,0);
+    }
     if(newStage && stage == 4)
     {
       newStage = false;
@@ -193,7 +204,7 @@ void draw()
       enemy = enemies[demoIndex];
       enemy.setTarget(player);
     }
-    drawScreen3(0,0);
+    drawScreen35(0,0);
     fill(okcBackground);
     stroke(okcPink1);
     rect(0,-1,tween,screen_h+2);
@@ -381,7 +392,7 @@ void drawScreen10(float x, float y)
   textFont(TEXT_FONT);
   textAlign(CENTER);
   textSize(100);
-  text("The End",x+(screen_w/2),y+(screen_h/2));
+  text("The End\nScore: " + score,x+(screen_w/2),y+(screen_h/2));
 }
 
 void drawScreen7(float x, float y)
@@ -743,6 +754,55 @@ void drawScreen2(float x, float y)
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
 }
 
+void drawScreen35(float x, float y)
+{
+  fill(255);
+  textFont(TEXT_FONT);
+  textSize(70);
+  textAlign(CENTER);
+  text("RULES",x+(screen_w/2),y+100);
+  
+  
+  textSize(20);
+  textAlign(CENTER);
+  String helpText = player.getUsername() + ", you will be presented with a series of 3 profiles.\nYou will have 2 minutes to interact with each.\nYour demographic information determines if your profile is visible to that profile.\nYour score is determined by the Match %, which is governed by how your profile's questions and the other profile's questions match up.\nIf your profile is not visible to the other, your score for that round will be 0.";
+  text(helpText,x,y+300,screen_w,400);
+  
+    float button_w = 100;
+    float button_h = 50;
+    
+    noStroke();
+      
+    float rect_x = (x+screen_w/2)-(button_w/2);
+    float rect_y = screen_h-button_h-100;
+  
+  if(overRect(rect_x,rect_y,button_w,button_h))
+  {
+        fill(okcButton_mouseover);
+        if(mousePressed && mouseButton == LEFT)
+        {
+           if(stage == 4)
+           {
+             initial = demo.copy();
+             stage = 5;
+             newStage = true;
+           }
+        }
+      }
+      else
+      {
+          fill(okcButton);
+      }
+    rect(rect_x,rect_y,button_w,button_h,2);
+    
+    textFont(BUTTON_FONT);
+    fill(255);
+    textAlign(CENTER);
+    
+    String buttonText = "Next";
+    text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+}
+
 void drawScreen3(float x, float y)
 {
   fill(255);
@@ -790,8 +850,7 @@ void drawScreen3(float x, float y)
            if(stage == 4)
            {
              initial = demo.copy();
-             stage = 5;
-             newStage = true;
+             draw35 = true;
            }
         }
       }
@@ -1376,7 +1435,7 @@ void drawRelationshipScreen2(float disp_x, float disp_y, String prefix)
       {
         cp5.addScrollableList(prefix + "Body")
         .setPosition(disp_x, disp_y)
-        .setSize(80,100)
+        .setSize(80,200)
         .setBarHeight(20)
         .setItemHeight(20)
         .addItem("Rather Not Say",0)
@@ -1428,7 +1487,7 @@ void drawReligionScreen2(float disp_x, float disp_y, String prefix)
       {
         cp5.addScrollableList(prefix + "Religion")
         .setPosition(disp_x, disp_y)
-        .setSize(80,100)
+        .setSize(80,150)
         .setBarHeight(20)
         .setItemHeight(20)
         .addItem("Agnosticism",0)
@@ -1479,7 +1538,7 @@ void drawSignScreen2(float disp_x, float disp_y, String prefix)
       {
         cp5.addScrollableList(prefix + "Sign")
         .setPosition(disp_x, disp_y)
-        .setSize(80,100)
+        .setSize(80,150)
         .setBarHeight(20)
         .setItemHeight(20)
         .addItem("Aquarius",0)
@@ -1880,10 +1939,10 @@ EnemyProfile make_Wicca_is_Sicca(Profile target)
   
   //Essays
   
-  Essay about = new Essay("My self-summar","Not interested if you find your gender on a line. Our signs have GOT to be compatible.");
+  Essay about = new Essay("My self-summary","Not interested if you find your gender on a line. Our signs have GOT to be compatible.");
   Essay qs = new Essay("Questions, Complaints, Improvements?", "There's no Wicca option in the religions menu!");
   
-  Essay[] essays = new Essay[]{about};
+  Essay[] essays = new Essay[]{about,qs};
   
   wis.setEssays(essays);
   
@@ -1944,7 +2003,7 @@ public void generatePopups(Demographics before, Demographics after)
     else
     {
       popups.add(new PopupMessage(player.getUsername(), "Guru_Child", "Abandoning " + religionToString.get(before.getReligion()) + " must not have been an easy choice.  I hope " +
-        religionToString.get(before.getReligion()) + " will bring you fulfillment."));
+        religionToString.get(after.getReligion()) + " will bring you fulfillment."));
     }
   }
   

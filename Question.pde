@@ -178,7 +178,7 @@ class Question
         //Make Button
         float circle_x = x+20;
         float circle_y = opt_height;
-        int circle_d = 20;
+        int circle_d = 30;
         
         if(overCircle(circle_x, circle_y, circle_d))
         {
@@ -247,7 +247,7 @@ class Question
         textAlign(CENTER);
         float text_x = (q_width)/2 + x;
         float text_y = opt_height;
-        text("Answer(s) You Will Accept",text_x,text_y);
+        text("Answer You Will Accept",text_x,text_y);
         
         opt_height = opt_height + 10;
         for(int i = 0; i < options.length; i++)
@@ -257,7 +257,7 @@ class Question
           //Make Button
           float circle_x = x+20;
           float circle_y = opt_height;
-          int circle_d = 20;
+          int circle_d = 30;
           
           if(overCircle(circle_x, circle_y, circle_d))
           {

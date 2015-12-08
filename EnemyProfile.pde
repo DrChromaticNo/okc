@@ -447,12 +447,17 @@ class EnemyProfile
       currTick = 0;
     }
     
-    String matchText = currMatch + "% Match";
+    String matchText = "--% Match";
+    if(visible)
+    {
+      matchText = currMatch + "% Match";
+    }
     
     text(matchText, match_x, match_y);
     textAlign(CENTER);
     
     textFont(USERNAME_SUBTITLE_FONT);
+    textSize(16);
     if(visible)
     {
       text("Visible",match_x,match_y+15);

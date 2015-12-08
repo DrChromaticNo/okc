@@ -72,18 +72,17 @@ class Profile
     float rect_x = x;
     float rect_y = y;
     
-    if(questions[qIndex].getEditing())
+    boolean editing = questions[qIndex].getEditing();
+    for(Question q: questions)
     {
-      fill(100);
+     q.setEditing(editing);
     }
-    else
-    {
+
       if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex-1;
            if(qIndex < 0)
            {
@@ -97,7 +96,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -117,18 +115,11 @@ class Profile
      rect_x = x + 300 - button_w;
      rect_y = y;
     
-    if(questions[qIndex].getEditing())
-    {
-      fill(100);
-    }
-    else
-    {
       if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex+1;
            if(qIndex > questions.length-1)
            {
@@ -142,7 +133,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -233,18 +223,17 @@ class Profile
     float rect_x = question_x;
     float rect_y = question_y;
     
-    if(questions[qIndex].getEditing())
+   boolean editing = questions[qIndex].getEditing();
+    for(Question q: questions)
     {
-      fill(100);
+     q.setEditing(editing);
     }
-    else
-    {
+
       if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex-1;
            if(qIndex < 0)
            {
@@ -258,7 +247,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -278,18 +266,11 @@ class Profile
      rect_x = question_x + 300 - button_w;
      rect_y = question_y;
     
-    if(questions[qIndex].getEditing())
-    {
-      fill(100);
-    }
-    else
-    {
-      if(overRect(rect_x,rect_y,button_w,button_h))
+    if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex+1;
            if(qIndex > questions.length-1)
            {
@@ -303,7 +284,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
