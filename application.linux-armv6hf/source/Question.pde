@@ -31,8 +31,9 @@ class Question
   private int switchInterval = 10;
   private int currSwitch;
   private boolean changed;
+  private boolean hidden;
   
-  public Question(String text, String[] options, boolean editable)
+  public Question(String text, String[] options, boolean editable, boolean hidden)
   {
     this.text = text;
     this.options = options;
@@ -43,6 +44,12 @@ class Question
     currSwitch = 0;
     okToSwitch = true;
     changed = true;
+    this.hidden = hidden;
+  }
+  
+  public Question(String text, String[] options, boolean editable)
+  {
+    this(text, options, editable, false);
   }
   
   public boolean getChanged()
@@ -80,10 +87,17 @@ class Question
     int q_height = MIN_HEIGHT;
     
     noStroke();
-    fill(okcOffWhite);
+    if(hidden)
+    {
+      fill(okcPrivateQ);
+    }
+    else
+    {
+      fill(okcOffWhite);
+    }
     rect(x, y, q_width, q_height, 7);
     
-    if(editable)
+    if(editable && !hidden)
     {
       //Make Edit Button
       float button_w = 80;
@@ -142,90 +156,21 @@ class Question
     float text_w = 200;
     float text_h = 70;
     text(text,x+50,y+16,text_w,text_h);
-    
-    float textHeight = wordWrap(text, (int)text_w+50).size() * g.textLeading;
-    
-    float opt_height = y+16+textHeight+5;
-    
-    for(int i = 0; i < options.length; i++)
+    if(hidden)
     {
-      String option = options[i];
-      
-      //Make Button
-      float circle_x = x+20;
-      float circle_y = opt_height;
-      int circle_d = 20;
-      
-      if(overCircle(circle_x, circle_y, circle_d))
-      {
-        if (mousePressed && mouseButton == LEFT && editing)
-        {
-          fill(0);
-          selectYourChoice(i);
-        }
-        else
-        {
-          if(yourChoice != null && yourChoice == i)
-          {
-            fill(0);
-          }  
-          else
-          {
-            fill(204);
-          }
-        }
-      }
-      else
-      {
-        if(yourChoice != null && yourChoice == i)
-        {
-          fill(0);
-        }
-        else
-        {
-          fill(255);
-        }
-      }
-      stroke(0);
-      if(!editing && yourChoice != null && yourChoice == i)
-      {
-        ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
-      }
-      else if(editing)
-      {
-        ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
-      }
-      
-      //Write Text
-      textFont(OPTIONS_FONT);
-      fill(0);
-      textAlign(LEFT);
-      
-      float option_x = x+40;
-      float option_y = opt_height+4;
-      text(option,option_x,option_y);
-      
-      //Increment
-      opt_height = opt_height + 25;
-    }
-    
-    opt_height = opt_height-4;
-    if(editable)
-    {
-      stroke(0);
-      line(x+20, opt_height, x+q_width-20, opt_height);
-      
-      opt_height = opt_height + 20;
-      
-      textFont(TEXT_FONT);
-      textSize(13);
-      fill(0);
+      textFont(USERNAME_FONT);
+      fill(okcPrivateQ2);
+      textSize(30);
       textAlign(CENTER);
-      float text_x = (q_width)/2 + x;
-      float text_y = opt_height;
-      text("Answer(s) You Will Accept",text_x,text_y);
       
-      opt_height = opt_height + 10;
+      text("PRIVATE",x+(q_width/2),y+(q_height)/2);
+    }
+    else
+    {
+      float textHeight = wordWrap(text, (int)text_w).size() * g.textLeading;
+      
+      float opt_height = y+16+textHeight+5;
+      
       for(int i = 0; i < options.length; i++)
       {
         String option = options[i];
@@ -233,18 +178,18 @@ class Question
         //Make Button
         float circle_x = x+20;
         float circle_y = opt_height;
-        int circle_d = 20;
+        int circle_d = 30;
         
         if(overCircle(circle_x, circle_y, circle_d))
         {
           if (mousePressed && mouseButton == LEFT && editing)
           {
             fill(0);
-            selectTheirChoice(i);
+            selectYourChoice(i);
           }
           else
           {
-            if(theirChoice != null && theirChoice == i)
+            if(yourChoice != null && yourChoice == i)
             {
               fill(0);
             }  
@@ -256,7 +201,7 @@ class Question
         }
         else
         {
-          if(theirChoice != null && theirChoice == i)
+          if(yourChoice != null && yourChoice == i)
           {
             fill(0);
           }
@@ -266,7 +211,7 @@ class Question
           }
         }
         stroke(0);
-        if(!editing && theirChoice != null && theirChoice == i)
+        if(!editing && yourChoice != null && yourChoice == i)
         {
           ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
         }
@@ -287,17 +232,97 @@ class Question
         //Increment
         opt_height = opt_height + 25;
       }
+      
+      opt_height = opt_height-4;
+      if(editable)
+      {
+        stroke(0);
+        line(x+20, opt_height, x+q_width-20, opt_height);
+        
+        opt_height = opt_height + 20;
+        
+        textFont(TEXT_FONT);
+        textSize(13);
+        fill(0);
+        textAlign(CENTER);
+        float text_x = (q_width)/2 + x;
+        float text_y = opt_height;
+        text("Answer You Will Accept",text_x,text_y);
+        
+        opt_height = opt_height + 10;
+        for(int i = 0; i < options.length; i++)
+        {
+          String option = options[i];
+          
+          //Make Button
+          float circle_x = x+20;
+          float circle_y = opt_height;
+          int circle_d = 30;
+          
+          if(overCircle(circle_x, circle_y, circle_d))
+          {
+            if (mousePressed && mouseButton == LEFT && editing)
+            {
+              fill(0);
+              selectTheirChoice(i);
+            }
+            else
+            {
+              if(theirChoice != null && theirChoice == i)
+              {
+                fill(0);
+              }  
+              else
+              {
+                fill(204);
+              }
+            }
+          }
+          else
+          {
+            if(theirChoice != null && theirChoice == i)
+            {
+              fill(0);
+            }
+            else
+            {
+              fill(255);
+            }
+          }
+          stroke(0);
+          if(!editing && theirChoice != null && theirChoice == i)
+          {
+            ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+          }
+          else if(editing)
+          {
+            ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+          }
+          
+          //Write Text
+          textFont(OPTIONS_FONT);
+          fill(0);
+          textAlign(LEFT);
+          
+          float option_x = x+40;
+          float option_y = opt_height+4;
+          text(option,option_x,option_y);
+          
+          //Increment
+          opt_height = opt_height + 25;
+        }
+      }
+      if(currSwitch < switchInterval)
+      {
+        currSwitch = currSwitch+1;
+      }
+      else
+      {
+        okToSwitch = true;
+      }
+      
+      fill(255);
     }
-    if(currSwitch < switchInterval)
-    {
-      currSwitch = currSwitch+1;
-    }
-    else
-    {
-      okToSwitch = true;
-    }
-    
-    fill(255);
   }
   
   public String getText()

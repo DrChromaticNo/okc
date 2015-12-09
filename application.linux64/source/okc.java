@@ -3,6 +3,7 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import java.util.Random; 
 import java.util.Set; 
 import java.util.HashSet; 
 import java.util.Date; 
@@ -19,15 +20,24 @@ import java.io.IOException;
 
 public class okc extends PApplet {
 
-Question testQ = new Question("Would you strongly prefer to date someone of your own racial background/heritage?", new String[]{"Yes", "No", "Three","Four"}, true); //<>//
-Question test2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, true);
 
-Question eTestQ = new Question("Would you strongly prefer to date someone of your own racial background/heritage?", new String[]{"Yes", "No", "Three","Four"}, false);
-Question eTest2Q = new Question("This is another test?", new String[]{"Option 3", "Option 4"}, false);
+
+Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>//
+Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, true);
+Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, true);
+Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true);
+Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, true);
+Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, true);
+Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, true);
+Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, true);
+Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, true);
+Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, true);
+
 Demographics demo = new Demographics("demo");
-
-Essay testE = new Essay("What I\u2019m doing with my life", "the ambitions are: wake up, breathe, keep breathing\n \ni was working a soul crushing job for awhile but decided to give it up and go to grad school to work on something i'm passionate about. it's very scary because i'm kind of putting all my eggs in one basket but i am also happier than i have ever been in my entire life\n \nUPDATE: being in grad school is ALSO SOUL CRUSHING");
-Essay test2E = new Essay("I\u2019m really good at", "knowing the right question to ask. i feel ill at how genuine i'm being");
+Demographics initial;
+Demographics[] phases = new Demographics[3];
+EnemyProfile[] enemies = new EnemyProfile[3];
+int demoIndex = 0;
 
 Profile player;
 EnemyProfile enemy;
@@ -50,11 +60,14 @@ final int okcButton = color(50,96,199);
 final int okcButton_mouseover = color(69,110,203);
 final int okcBackground = color(16,77,161);
 final int okcOffWhite = color(243,245,249);
+final int okcPrivateQ = color(233,234,238);
+final int okcPrivateQ2 = color(148,154,167);
 final int green = color(0,192,0);
 final int red = color(248,55,18);
-final int TIMER_LENGTH = 1 * 60 * 1000;
+final int red_mouseover = color(251,142,123);
+final int TIMER_LENGTH = 2 * 10 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
-final int screen_w = 1300;
+final int screen_w = 1250;
 final int screen_h = 700;
 int timerStart;
 int score;
@@ -68,14 +81,32 @@ String username;
 String pass = "";
 String pass_confirm = "";
 
+CColor selected;
+CColor oldColor;
+
+boolean wasVisible;
+int oldMatch;
+
+int scoreFrames = 5;
+int scoreTick = 0;
+
+ArrayList<PopupMessage> popups;
+ArrayList<float[]> popupLocs;
+boolean firstPops;
+
+boolean draw35;
+
+int feedbackAlpha = 0;
+String feedbackMessage = "";
+
 public void setup()
 {
   setupMaps();
   
   
   MATCH_FONT = createFont("OpenSans.ttf",50,true);
-  TIMER_FONT = createFont("OpenSans.ttf",30,true);
-  SCORE_FONT = createFont("OpenSans.ttf",30,true);
+  TIMER_FONT = createFont("OpenSans.ttf",50,true);
+  SCORE_FONT = createFont("OpenSans.ttf",50,true);
   USERNAME_FONT = createFont("OpenSans.ttf",16,true);
   QUESTION_FONT = createFont("OpenSans.ttf",16,true);
   ANSWER_FONT = createFont("OpenSans.ttf",12,true);
@@ -87,25 +118,36 @@ public void setup()
   TITLE_FONT = createFont("OpenSans.ttf",70,true);
   cp5 = new ControlP5(this);
   
-  eTestQ.selectYourChoice(0);
-  eTestQ.selectTheirChoice(0);
-  eTest2Q.selectYourChoice(1);
-  eTest2Q.selectTheirChoice(1);
-  Question[] eQuestions = new Question[]{eTestQ,eTest2Q};
-  enemy = new EnemyProfile("test",player);
-  enemy.setQuestions(eQuestions);
-  HashSet<Gender> enemyGender = new HashSet<Gender>();
-  enemyGender.add(Gender.WOMAN);
-  enemyGender.add(Gender.TWO_SPIRIT);
-  Preference p = enemy.getPreference();
-  p.setAgeRange(21,30);
-  enemy.getDemo().addGender(Gender.WOMAN);
+  EnemyProfile jmc = make_jughead_muscle_carl(player);
+  EnemyProfile BR = make_Book_Reader(player);
+  EnemyProfile wis = make_Wicca_is_Sicca(player);
+  EnemyProfile hmcltm = make_hold_me_closer_tiny_marxist(player);
   
-  Essay[] es = new Essay[]{testE, test2E};
-  enemy.setEssays(es);
+  ArrayList<EnemyProfile> options = new ArrayList<EnemyProfile>();
+  options.add(jmc);
+  options.add(BR);
+  options.add(wis);
+  options.add(hmcltm);
+  
+  Random random = new Random();
+  
+  for(int i = 0; i < 3; i++)
+  {
+    int choice = random.nextInt(options.size());
+    EnemyProfile enemy = options.remove(choice);
+    enemies[i] = enemy;
+  }
   
   stage = 0;
   newStage = true;
+  
+  selected = new CColor();
+  selected.setBackground(color(255,0,0));
+  
+  oldColor = new CColor();
+  oldColor.setBackground(color(0,45,90));
+  
+  draw35 = false;
 }
 
 public void draw()
@@ -178,7 +220,14 @@ public void draw()
   }
   else if(stage == 4)
   {
-    drawScreen3(0,0);
+    if(draw35)
+    {
+      drawScreen35(0,0);
+    }
+    else
+    {
+      drawScreen3(0,0);
+    }
     if(newStage && stage == 4)
     {
       newStage = false;
@@ -189,14 +238,27 @@ public void draw()
     if(newStage)
     {
       tween = 0;
+      enemy = enemies[demoIndex];
       enemy.setTarget(player);
     }
-    drawScreen3(0,0);
+    drawScreen35(0,0);
     fill(okcBackground);
     stroke(okcPink1);
     rect(0,-1,tween,screen_h+2);
     player.drawAt(tween-screen_w-10,10);
-    enemy.drawAt(tween-screen_w-10,320);
+    
+    textFont(TEXT_FONT);
+    textSize(20);
+    textAlign(CENTER);
+    fill(okcPink1);
+    text("^YOU^",(tween-screen_w/2),330);
+    
+    stroke(okcPink1);
+    line(0,345,tween,345);
+    
+    text("vTHEMv",tween-screen_w/2,370);
+    
+    enemy.drawAt(tween-screen_w-10,380);
     
     tween = tween+10;
     
@@ -213,12 +275,211 @@ public void draw()
   }
   else if(stage == 6)
   {
+    drawScreen6();
+    
+    if(newStage && stage == 6)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 7)
+  {
     if(newStage)
+    {
+      tween = 0;
+    }
+    drawScreen6();
+    fill(okcBackground);
+    stroke(okcPink1);
+    rect(0,-1,tween,screen_h+2);
+    drawScreen7(tween-screen_w,0);
+    
+    tween = tween+10;
+    
+    if(tween >= screen_w)
+    {
+      stage = 8;
+      newStage = true;
+    }
+    
+    if(newStage && stage == 7)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 8)
+  {
+    if(newStage && stage == 8)
+    {
+      firstPops = true;
+      if(demoIndex == 1)
+      {
+        generatePopups(initial,phases[demoIndex-1]);
+      }
+      else
+      {
+        generatePopups(phases[demoIndex-2],phases[demoIndex-1]);
+      }
+    }
+    drawScreen7(0,0);
+    
+    boolean allPopupsClosed = true;
+    for(PopupMessage p:popups)
+    {
+      if(p.getVisible() == true)
+      {
+        allPopupsClosed = false;
+      }
+    }
+    
+    if(!wasVisible || oldMatch == 0 )
+    {
+      for(int i = 0; i < popups.size(); i++)
+      {
+        popups.get(i).drawAt(popupLocs.get(i)[0],popupLocs.get(i)[1]);
+      }
+      firstPops = false;
+      
+      if(demoIndex < 3 && allPopupsClosed)
+      {
+        stage = 9;
+        newStage = true;
+      }
+      else if(allPopupsClosed)
+      {
+        stage = 10;
+        newStage = true;
+      }
+    }
+    else if(scoreTick == scoreFrames)
+    {
+      oldMatch-=1;
+      score+=1;
+      scoreTick = 0;
+    }
+    else
+    {
+      scoreTick+=1;
+    }
+    
+    if(newStage && stage == 8)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 9)
+  {
+    if(newStage)
+    {
+      tween = screen_w+1;
+      enemy = enemies[demoIndex];
+      enemy.setTarget(player);
+    }
+    drawScreen6();
+    fill(okcBackground);
+    stroke(okcPink1);
+    rect(0,-1,tween,screen_h+2);
+    drawScreen7(tween-screen_w,0);
+    
+    tween = tween-10;
+    
+    if(tween <= 0)
+    {
+      stage = 6;
+      newStage = true;
+    }
+    if(newStage && stage == 9)
+    {
+      newStage = false;
+    }
+  }
+  else if (stage == 10)
+  {
+    if(newStage)
+    {
+      tween = 0;
+    }
+    drawScreen7(0,0);
+    fill(okcBackground);
+    stroke(okcPink1);
+    rect(-1,0,screen_w+2,tween);
+    drawScreen10(0,tween-screen_h);
+    tween=tween+10;
+    
+    if(tween >= screen_h)
+    {
+      stage = 11;
+      newStage = true;
+    }
+    
+    if(newStage && stage == 10)
+    {
+      newStage = false;
+    }
+  }
+  else if(stage == 11)
+  {
+    drawScreen10(0,0);
+  }
+}
+
+public void drawScreen10(float x, float y)
+{
+  fill(255);
+  textFont(TEXT_FONT);
+  textAlign(CENTER);
+  textSize(100);
+  text("The End\nScore: " + score,x+(screen_w/2),y+(screen_h/2));
+}
+
+public void drawScreen7(float x, float y)
+{
+  fill(okcOffWhite);
+  noStroke();
+  rect(x+300,y+150,screen_w-600,200,7);
+  
+  if(wasVisible)
+  {
+    fill(okcPink1);
+  }
+  else
+  {
+    fill(okcPrivateQ2);
+  }
+  float text_x = x+(screen_w/2);
+  float text_y = y+200;
+  textAlign(CENTER);
+  textFont(MATCH_FONT);
+  text(oldMatch + "% Match",text_x,text_y);
+  
+  text_y = text_y+100;
+  fill(okcPink1);
+  text("Score: " + score, text_x,text_y);
+  
+  
+}
+
+public void drawScreen6()
+{
+     if(newStage)
     {
       timerStart = millis();
     }
     player.drawAt(10,10);
-    enemy.drawAt(10,320);
+    
+    textFont(TEXT_FONT);
+    textSize(20);
+    textAlign(CENTER);
+    fill(okcPink1);
+    text("^YOU^",screen_w/2,330);
+    
+    stroke(okcPink1);
+    line(0,345,screen_w,345);
+    
+    text("vTHEMv",screen_w/2,370);
+    
+    println("drawing enemy");
+    enemy.drawAt(10,380);
     
     textFont(TIMER_FONT);
     textAlign(LEFT);
@@ -237,26 +498,21 @@ public void draw()
     {
       secDisp = "0" + secDisp;
     }
-    text(minsDisp + ":" + secDisp,150,200);
+    text(minsDisp + ":" + secDisp,70,200);
     
     textFont(SCORE_FONT);
     if(mins == 0 && secs == 0)
     {
       timerStart = millis();
-      if(enemy.getVisible())
-      {
-        score = score + enemy.getFinalMatch();
-      }
+      wasVisible = enemy.getVisible();
+      oldMatch = enemy.getFinalMatch();
+      player.getDemo().setEditing(false);
+      phases[demoIndex] = player.getDemo().copy();
+      demoIndex++;
       stage = 7;
       newStage = true;
     }
-    text("Score: " + score,150,220);
-    
-    if(newStage && stage == 6)
-    {
-      newStage = false;
-    }
-  }
+    text("Score: " + score,70,250);
 }
 
 public void drawScreen1()
@@ -276,11 +532,6 @@ public void drawScreen1()
     text(helpText, text_x, text_y);
     
     textSize(15);
-    text_x = text_x;
-    text_y = text_y + 60;
-    text("(Hit Enter to confirm or change a field)", text_x, text_y);
-    
-    textSize(15);
     textAlign(LEFT);
     text_x = screen_w/4;
     text_y = text_y + 120;
@@ -294,7 +545,8 @@ public void drawScreen1()
            .setPosition(disp_x,disp_y)
            .setSize(500,20)
            .setFont(TEXT_FONT)
-           .setLabel("");
+           .setLabel("")
+           .setAutoClear(false);
     }
     else if(stage == 0)
     {
@@ -305,12 +557,10 @@ public void drawScreen1()
       cp5.get(Textfield.class, "Username").setVisible(false);
     }
     
+    username = cp5.get(Textfield.class, "Username").getText();
+    
     text_x = text_x;
     text_y = text_y + 25;
-    if(username != null)
-    {
-      text(username,text_x+textWidth("Confirm Password:"),text_y);
-    }
     
     textSize(15);
     textAlign(LEFT);
@@ -327,7 +577,8 @@ public void drawScreen1()
            .setSize(500,20)
            .setFont(TEXT_FONT)
            .setLabel("")
-           .setPasswordMode(true);
+           .setPasswordMode(true)
+           .setAutoClear(false);
     }
     else if(stage == 0)
     {
@@ -338,25 +589,10 @@ public void drawScreen1()
       cp5.get(Textfield.class, "Password").setVisible(false);
     }
     
+    pass = cp5.get(Textfield.class, "Password").getText();
+    
     text_x = text_x;
     text_y = text_y + 25;
-    if(pass != null)
-    {
-      String star_pass = "";
-      for(int i = 0; i < pass.length(); i++)
-      {
-        star_pass = star_pass + "*";
-      }
-      if(pass.equals(pass_confirm))
-      {
-        fill(green);
-      }
-      else
-      {
-        fill(red);
-      }
-      text(star_pass,text_x+textWidth("Confirm Password:"),text_y);
-    }
     
     textSize(15);
     textAlign(LEFT);
@@ -374,7 +610,8 @@ public void drawScreen1()
            .setSize(500,20)
            .setFont(TEXT_FONT)
            .setLabel("")
-           .setPasswordMode(true);
+           .setPasswordMode(true)
+           .setAutoClear(false);
     }
     else if(stage == 0)
     {
@@ -385,25 +622,10 @@ public void drawScreen1()
       cp5.get(Textfield.class, "ConfirmPassword").setVisible(false);
     }
     
+    pass_confirm = cp5.get(Textfield.class, "ConfirmPassword").getText();
+    
     text_x = text_x;
     text_y = text_y + 25;
-    if(pass_confirm != null)
-    {
-      String star_pass = "";
-      for(int i = 0; i < pass_confirm.length(); i++)
-      {
-        star_pass = star_pass + "*";
-      }
-      if(pass.equals(pass_confirm))
-      {
-        fill(green);
-      }
-      else
-      {
-        fill(red);
-      }
-      text(star_pass,text_x+textWidth("Confirm Password:"),text_y);
-    }
     
     float button_w = 100;
     float button_h = 50;
@@ -415,7 +637,7 @@ public void drawScreen1()
     float rect_x = (screen_w/2)-(button_w/2);
     float rect_y = screen_h-button_h-30;
     
-    if(username == null || pass == null || pass_confirm == null 
+    if(username == "" || pass == "" || pass_confirm == "" 
     || username.length() < 1 || pass.length() < 1 || pass_confirm.length() < 1 
     || !pass.equals(pass_confirm) || stage != 0)
     {
@@ -432,9 +654,7 @@ public void drawScreen1()
            {
              stage = 1;
              player = new Profile(username,pass);
-             demo.addGender(Gender.MAN);
-             demo.setAge(24);
-             Question[] questions = new Question[]{testQ,test2Q};
+             Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
              player.setQuestions(questions);
              player.setDemo(demo);
              newStage = true;
@@ -491,12 +711,38 @@ public void drawScreen2(float x, float y)
   drawRelationshipScreen2(col1,row1,prefix);
   row1 = row1-40;
   drawHeightScreen2(col1,row1,prefix);
+  int human_height = 0;
+  int feet = 0;
+  int inches = 0;
+  try
+  {
+    feet = Integer.parseInt(cp5.get(Textfield.class, prefix+"Feet").getText());
+    feet = feet*12;
+  }
+  catch(Exception e)
+  {}
+  
+  try
+  {
+    inches = Integer.parseInt(cp5.get(Textfield.class, prefix+"Inches").getText());
+  }
+  catch(Exception e)
+  {}
+  human_height = feet+inches;
   row1 = row1-40;
   drawEthnicityScreen2(col1,row1,prefix);
   row1 = row1-40;
   drawOrientationScreen2(col1,row1,prefix);
   row1 = row1-40;
   drawAgeScreen2(col1,row1,prefix);
+  int age = -1;
+  try
+  {
+    age = Integer.parseInt(cp5.get(Textfield.class, prefix+"Age").getText());
+  }
+  catch(Exception e)
+  {}
+  
   row1 = row1-40;
   drawGenderScreen2(col1,row1,prefix);
   
@@ -508,7 +754,7 @@ public void drawScreen2(float x, float y)
   rect_x = (rect_x+rect_w-5)-(button_w);
   rect_y = (rect_y+rect_h)-button_h-5;
     
-    if(player.getDemo().getGenders().isEmpty() || player.getDemo().getAge() <= 0 || stage > 2)
+    if(player.getDemo().getGenders().isEmpty() || age <= 0 || stage > 2)
     {
       fill(100);
     }
@@ -522,6 +768,11 @@ public void drawScreen2(float x, float y)
            if(stage == 2)
            {
              stage = 3;
+             player.getDemo().setAge(age);
+             if(human_height > 0)
+             {
+               player.getDemo().setHeight(human_height);
+             }
              newStage = true;
            }
         }
@@ -531,6 +782,55 @@ public void drawScreen2(float x, float y)
           fill(okcButton);
       }
     }
+    rect(rect_x,rect_y,button_w,button_h,2);
+    
+    textFont(BUTTON_FONT);
+    fill(255);
+    textAlign(CENTER);
+    
+    String buttonText = "Next";
+    text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+}
+
+public void drawScreen35(float x, float y)
+{
+  fill(255);
+  textFont(TEXT_FONT);
+  textSize(70);
+  textAlign(CENTER);
+  text("RULES",x+(screen_w/2),y+100);
+  
+  
+  textSize(20);
+  textAlign(CENTER);
+  String helpText = player.getUsername() + ", you will be presented with a series of 3 profiles.\nYou will have 2 minutes to interact with each.\nYour demographic information determines if your profile is visible to that profile.\nYour score is determined by the Match %, which is governed by how your profile's questions and the other profile's questions match up.\nIf your profile is not visible to the other, your score for that round will be 0.";
+  text(helpText,x,y+300,screen_w,400);
+  
+    float button_w = 100;
+    float button_h = 50;
+    
+    noStroke();
+      
+    float rect_x = (x+screen_w/2)-(button_w/2);
+    float rect_y = screen_h-button_h-100;
+  
+  if(overRect(rect_x,rect_y,button_w,button_h))
+  {
+        fill(okcButton_mouseover);
+        if(mousePressed && mouseButton == LEFT)
+        {
+           if(stage == 4)
+           {
+             initial = demo.copy();
+             stage = 5;
+             newStage = true;
+           }
+        }
+      }
+      else
+      {
+          fill(okcButton);
+      }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -587,8 +887,8 @@ public void drawScreen3(float x, float y)
         {
            if(stage == 4)
            {
-             stage = 5;
-             newStage = true;
+             initial = demo.copy();
+             draw35 = true;
            }
         }
       }
@@ -834,21 +1134,6 @@ public ArrayList wordWrap(String s, int maxWidth) {
   return a;
 }
 
-public void Username(String theText)
-{
-  username = theText;
-}
-
-public void Password(String theText)
-{
-  pass = theText;
-}
-
-public void ConfirmPassword(String theText)
-{
-  pass_confirm = theText;
-}
-
 public void drawGenderScreen2(float disp_x, float disp_y, String prefix)
 {
   String genderDescription = "Gender (5 Max):";
@@ -874,10 +1159,31 @@ public void drawGenderScreen2(float disp_x, float disp_y, String prefix)
       .setPosition(disp_x, disp_y)
       .setBarHeight(20)
       .setItemHeight(20)
-      .addItems(genderToString.values().toArray(new String[0]))
+      .addItem("Woman",0)
+      .addItem("Man",1)
+      .addItem("Agender",2)
+      .addItem("Androgynous",3)
+      .addItem("Bigender",4)
+      .addItem("Cis Man",5)
+      .addItem("Cis Woman",6)
+      .addItem("Genderfluid",7)
+      .addItem("Genderqueer",8)
+      .addItem("Gender Nonconforming",9)
+      .addItem("Hijra",10)
+      .addItem("Intersex",11)
+      .addItem("Non-Binary",12)
+      .addItem("Other",13)
+      .addItem("Pangender",14)
+      .addItem("Transfeminine",15)
+      .addItem("Transgender",16)
+      .addItem("Transmasculine",17)
+      .addItem("Trans Man",18)
+      .addItem("Trans Woman",19)
+      .addItem("Two Spirit",20)
       .setType(ScrollableList.LIST)
       .setLabel("Gender")
       .setOpen(false);
+      
   }
   else
   {
@@ -896,16 +1202,10 @@ public void drawGenderScreen2(float disp_x, float disp_y, String prefix)
 public void drawAgeScreen2(float disp_x, float disp_y, String prefix)
 {
     String ageDescription = "Age:";
-    int age = player.getDemo().getAge();
-    
-    if(age > 0)
-    {
-      ageDescription = ageDescription + " " + age;
-    }
     
     text(ageDescription, disp_x, disp_y);
     
-    disp_x = disp_x + (int) textWidth(ageDescription) + 5;
+    disp_x = disp_x + (int) textWidth(ageDescription) + 5; 
     disp_y = disp_y - 10;
     
       if(cp5.get(Textfield.class, prefix+"Age") == null)
@@ -928,6 +1228,7 @@ public void drawAgeScreen2(float disp_x, float disp_y, String prefix)
           }
         cp5.get(Textfield.class, prefix+"Age").setPosition(disp_x, disp_y);
       }
+      
 }
 
 public void drawOrientationScreen2(float disp_x, float disp_y, String prefix)
@@ -957,10 +1258,21 @@ public void drawOrientationScreen2(float disp_x, float disp_y, String prefix)
         .setPosition(disp_x, disp_y)
         .setBarHeight(20)
         .setItemHeight(20)
-        .addItems(orientationToString.values().toArray(new String[0]))
+        .addItem("Straight",0)
+        .addItem("Gay",1)
+        .addItem("Bisexual",2)
+        .addItem("Asexual",3)
+        .addItem("Demisexual",4)
+        .addItem("Heteroflexible",5)
+        .addItem("Lesbian",6)
+        .addItem("Pansexual",7)
+        .addItem("Queer",8)
+        .addItem("Questioning",9)
+        .addItem("Sapiosexual",10)
         .setType(ScrollableList.LIST)
         .setLabel("Orientation")
         .setOpen(false);
+        
       }
       else
       {
@@ -1004,10 +1316,19 @@ public void drawEthnicityScreen2(float disp_x, float disp_y, String prefix)
         .setPosition(disp_x, disp_y)
         .setBarHeight(20)
         .setItemHeight(20)
-        .addItems(ethnicityToString.values().toArray(new String[0]))
+        .addItem("Asian",0)
+        .addItem("Native American",1)
+        .addItem("Indian",2)
+        .addItem("Middle Eastern",3)
+        .addItem("Hispanic/Latin",4)
+        .addItem("White",5)
+        .addItem("Black",6)
+        .addItem("Pacific Islander",7)
+        .addItem("Other",8)
         .setType(ScrollableList.LIST)
         .setLabel("Ethnicity")
         .setOpen(false);
+        
       }
       else
       {
@@ -1027,25 +1348,6 @@ public void drawEthnicityScreen2(float disp_x, float disp_y, String prefix)
 public void drawHeightScreen2(float disp_x, float disp_y, String prefix)
 {
     String heightDescription = "Height: ";
-    int human_height = player.getDemo().getHeight();
-    
-    int feet = human_height/12;
-    int inches = human_height%12;
-    
-    if(feet > 0)
-    {
-      heightDescription = heightDescription + feet + " feet";
-      if(inches > 0)
-      {
-        heightDescription = heightDescription + ", ";
-      }
-    }
-    
-    if(inches > 0)
-    {
-      heightDescription = heightDescription + inches + " inches";
-    }
-    
     text(heightDescription, disp_x, disp_y);
     
     disp_x = disp_x + (int) textWidth(heightDescription) + 5; 
@@ -1171,7 +1473,7 @@ public void drawRelationshipScreen2(float disp_x, float disp_y, String prefix)
       {
         cp5.addScrollableList(prefix + "Body")
         .setPosition(disp_x, disp_y)
-        .setSize(80,100)
+        .setSize(80,200)
         .setBarHeight(20)
         .setItemHeight(20)
         .addItem("Rather Not Say",0)
@@ -1223,7 +1525,7 @@ public void drawReligionScreen2(float disp_x, float disp_y, String prefix)
       {
         cp5.addScrollableList(prefix + "Religion")
         .setPosition(disp_x, disp_y)
-        .setSize(80,100)
+        .setSize(80,150)
         .setBarHeight(20)
         .setItemHeight(20)
         .addItem("Agnosticism",0)
@@ -1274,7 +1576,7 @@ public void drawSignScreen2(float disp_x, float disp_y, String prefix)
       {
         cp5.addScrollableList(prefix + "Sign")
         .setPosition(disp_x, disp_y)
-        .setSize(80,100)
+        .setSize(80,150)
         .setBarHeight(20)
         .setItemHeight(20)
         .addItem("Aquarius",0)
@@ -1352,6 +1654,568 @@ public void drawEducationScreen2(float disp_x, float disp_y, String prefix)
         cp5.get(ScrollableList.class, prefix+"Education").setPosition(disp_x, disp_y);
       }
   }
+  
+public EnemyProfile make_jughead_muscle_carl(Profile target)
+{
+  EnemyProfile jmc = new EnemyProfile("jughead_muscle_carl", target);
+  
+  //First, demos
+  Demographics jmcDemo = jmc.getDemo();
+  jmcDemo.addGender(Gender.MAN);
+  jmcDemo.addGender(Gender.CIS_MAN);
+  jmcDemo.setAge(28);
+  jmcDemo.addOrientation(Orientation.STRAIGHT);
+  jmcDemo.addEthnicity(Ethnicity.WHITE);
+  jmcDemo.setHeight(6*12);
+  jmcDemo.setRelationship(RelationshipType.STRICTLY_MONOGAMOUS);
+  jmcDemo.setBodyType(BodyType.ATHLETIC);
+  jmcDemo.setSign(Sign.TAURUS);
+  jmcDemo.setReligion(Religion.CHRISTIANITY);
+  jmcDemo.setEducation(Education.UNIVERSITY);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false); //<>//
+  
+  Q1.selectYourChoice(1);
+  Q1.selectTheirChoice(1);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(1);
+  Q2.selectTheirChoice(1);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false);
+  
+  Q3.selectYourChoice(1);
+  Q3.selectTheirChoice(1);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(1);
+  Q4.selectTheirChoice(1);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(1);
+  Q5.selectTheirChoice(1);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false);
+  
+  Q6.selectYourChoice(1);
+  Q6.selectTheirChoice(3);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(0);
+  Q7.selectTheirChoice(0);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(0);
+  Q8.selectTheirChoice(0);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false);
+  
+  Q9.selectYourChoice(0);
+  Q9.selectTheirChoice(0);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  jmc.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference jmcPref = jmc.getPreference();
+  HashSet<Gender> genderPref = new HashSet<Gender>();
+  genderPref.add(Gender.WOMAN);
+  genderPref.add(Gender.CIS_WOMAN);
+  
+  jmcPref.setGenders(genderPref);
+  jmcPref.setAgeRange(21,28);
+  
+  HashSet<Orientation> orientationPref = new HashSet<Orientation>();
+  orientationPref.add(Orientation.BISEXUAL);
+  orientationPref.add(Orientation.STRAIGHT);
+  orientationPref.add(Orientation.QUESTIONING);
+  orientationPref.add(Orientation.SAPIOSEXUAL);
+  orientationPref.add(Orientation.HETEROFLEXIBLE);
+  jmcPref.setOrientations(orientationPref);
+  
+  HashSet<Ethnicity> ethnicityPref = new HashSet<Ethnicity>();
+  ethnicityPref.add(Ethnicity.WHITE);
+  jmcPref.setEthnicities(ethnicityPref);
+  
+  jmcPref.setHeightRange(0,6*12);
+  
+  HashSet<Religion> religionPref = new HashSet<Religion>();
+  religionPref.add(Religion.CHRISTIANITY);
+  
+  
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary", "LAX!  My god is my light and true fire.\nEqual Opportunity Sex God (within reason).  It isn't hot to be tall, unless you're me.  Support our troops.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  jmc.setEssays(essays);
+  
+  return jmc;
+}
+
+public EnemyProfile make_Book_Reader(Profile target)
+{
+  EnemyProfile BR = new EnemyProfile("Book_Reader", target);
+  
+  //First, demos
+  Demographics BRDemo = BR.getDemo();
+  BRDemo.addGender(Gender.TRANSFEMININE);
+  BRDemo.setAge(32);
+  BRDemo.addOrientation(Orientation.QUEER);
+  BRDemo.addOrientation(Orientation.SAPIOSEXUAL);
+  BRDemo.setHeight(5*12 + 7);
+  BRDemo.setRelationship(RelationshipType.MOSTLY_NONMONOGAMOUS);
+  BRDemo.setBodyType(BodyType.SKINNY);
+  BRDemo.setSign(Sign.PISCES);
+  BRDemo.setReligion(Religion.ATHEISM);
+  BRDemo.setEducation(Education.POST_GRAD);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
+  
+  Q1.selectYourChoice(0);
+  Q1.selectTheirChoice(0);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(0);
+  Q2.selectTheirChoice(0);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false, true);
+  
+  Q3.selectYourChoice(2);
+  Q3.selectTheirChoice(2);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(1);
+  Q4.selectTheirChoice(1);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(0);
+  Q5.selectTheirChoice(0);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false, true);
+  
+  Q6.selectYourChoice(2);
+  Q6.selectTheirChoice(2);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(1);
+  Q7.selectTheirChoice(1);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(1);
+  Q8.selectTheirChoice(1);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false, true);
+  
+  Q9.selectYourChoice(1);
+  Q9.selectTheirChoice(1);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  BR.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference BRPref = BR.getPreference();
+  BRPref.setAgeRange(25,40);
+  
+  HashSet<Religion> religionPref = new HashSet<Religion>();
+  religionPref.add(Religion.AGNOSTICISM);
+  religionPref.add(Religion.ATHEISM);
+  BRPref.setReligions(religionPref);
+  
+  HashSet<Education> educationPref = new HashSet<Education>();
+  educationPref.add(Education.UNIVERSITY);
+  educationPref.add(Education.POST_GRAD);
+  BRPref.setEducations(educationPref);
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary", "Voracious reader.  PhD Candidate in Medieval Literature.  Magic and god aren't real.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  BR.setEssays(essays);
+  
+  return BR;
+}
+
+public EnemyProfile make_hold_me_closer_tiny_marxist(Profile target)
+{
+  EnemyProfile hmcltm = new EnemyProfile("HoldMeCloserTinyMarxist", target);
+  
+  //First, demos
+  Demographics hmcltmDemo = hmcltm.getDemo();
+  hmcltmDemo.addGender(Gender.CIS_MAN);
+  hmcltmDemo.setAge(45);
+  hmcltmDemo.addOrientation(Orientation.STRAIGHT);
+  hmcltmDemo.addEthnicity(Ethnicity.INDIAN);
+  hmcltmDemo.setHeight(5*12 + 8);
+  hmcltmDemo.setRelationship(RelationshipType.MOSTLY_NONMONOGAMOUS);
+  hmcltmDemo.setBodyType(BodyType.USED_UP);
+  hmcltmDemo.setSign(Sign.CAPRICORN);
+  hmcltmDemo.setReligion(Religion.ATHEISM);
+  hmcltmDemo.setEducation(Education.UNIVERSITY);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
+  
+  Q1.selectYourChoice(0);
+  Q1.selectTheirChoice(0);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(0);
+  Q2.selectTheirChoice(0);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false);
+  
+  Q3.selectYourChoice(0);
+  Q3.selectTheirChoice(0);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(1);
+  Q4.selectTheirChoice(1);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(0);
+  Q5.selectTheirChoice(0);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false, true);
+  
+  Q6.selectYourChoice(1);
+  Q6.selectTheirChoice(1);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(1);
+  Q7.selectTheirChoice(1);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(1);
+  Q8.selectTheirChoice(1);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false, true);
+  
+  Q9.selectYourChoice(1);
+  Q9.selectTheirChoice(1);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  hmcltm.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference hmcltmPref = hmcltm.getPreference();
+  HashSet<Gender> genderPref = new HashSet<Gender>();
+  genderPref.add(Gender.CIS_WOMAN);
+  genderPref.add(Gender.WOMAN);
+  genderPref.add(Gender.TRANSFEMININE);
+  genderPref.add(Gender.TRANS_WOMAN);
+  genderPref.add(Gender.TWO_SPIRIT);
+  genderPref.add(Gender.INTERSEX);
+  genderPref.add(Gender.BIGENDER);
+  genderPref.add(Gender.GENDERQUEER);
+  genderPref.add(Gender.GENDERFLUID);
+  genderPref.add(Gender.PANGENDER);
+  
+  hmcltmPref.setGenders(genderPref);
+  hmcltmPref.setAgeRange(45,55);
+  
+  HashSet<Ethnicity> ethnicityPref = new HashSet<Ethnicity>();
+  ethnicityPref.add(Ethnicity.OTHER);
+  ethnicityPref.add(Ethnicity.BLACK);
+  ethnicityPref.add(Ethnicity.INDIAN);
+  ethnicityPref.add(Ethnicity.NATIVE_AMERICAN);
+  ethnicityPref.add(Ethnicity.MIDDLE_EASTERN);
+  ethnicityPref.add(Ethnicity.ASIAN);
+  ethnicityPref.add(Ethnicity.PACIFIC_ISLANDER);
+  ethnicityPref.add(Ethnicity.HISPANIC_LATIN);
+  hmcltmPref.setEthnicities(ethnicityPref);
+  
+  HashSet<RelationshipType> rlPref = new HashSet<RelationshipType>();
+  rlPref.add(RelationshipType.STRICTLY_NONMONOGAMOUS);
+  rlPref.add(RelationshipType.MOSTLY_NONMONOGAMOUS);
+  
+  hmcltmPref.setRTypes(rlPref);
+  
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary","My two favorite things are elton john and communism.  No offense, but no white people, please.\nMy heart & the state can only support poly relationships.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  hmcltm.setEssays(essays);
+  
+  return hmcltm;
+}
+
+public EnemyProfile make_Wicca_is_Sicca(Profile target)
+{
+  EnemyProfile wis = new EnemyProfile("Wicca_is_Sicca", target);
+  
+  //First, demos
+  Demographics wisDemo = wis.getDemo();
+  wisDemo.addGender(Gender.ANDROGYNOUS);
+  wisDemo.setAge(40);
+  wisDemo.addOrientation(Orientation.QUEER);
+  wisDemo.addEthnicity(Ethnicity.BLACK);
+  wisDemo.addEthnicity(Ethnicity.OTHER);
+  wisDemo.setHeight(5*12 + 5);
+  wisDemo.setRelationship(RelationshipType.MOSTLY_MONOGAMOUS);
+  wisDemo.setBodyType(BodyType.A_LITTLE_EXTRA);
+  wisDemo.setSign(Sign.VIRGO);
+  wisDemo.setReligion(Religion.OTHER);
+  wisDemo.setEducation(Education.UNIVERSITY);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
+  
+  Q1.selectYourChoice(0);
+  Q1.selectTheirChoice(0);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(0);
+  Q2.selectTheirChoice(0);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false);
+  
+  Q3.selectYourChoice(2);
+  Q3.selectTheirChoice(2);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(0);
+  Q4.selectTheirChoice(0);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(0);
+  Q5.selectTheirChoice(0);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false);
+  
+  Q6.selectYourChoice(3);
+  Q6.selectTheirChoice(3);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(1);
+  Q7.selectTheirChoice(1);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(1);
+  Q8.selectTheirChoice(1);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false);
+  
+  Q9.selectYourChoice(2);
+  Q9.selectTheirChoice(2);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  wis.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference wisPref = wis.getPreference();
+  HashSet<Gender> genderPref = new HashSet<Gender>();
+  genderPref.add(Gender.AGENDER);
+  genderPref.add(Gender.ANDROGYNOUS);
+  genderPref.add(Gender.BIGENDER);
+  genderPref.add(Gender.TWO_SPIRIT);
+  genderPref.add(Gender.GENDER_NONCONFORMING);
+  genderPref.add(Gender.INTERSEX);
+  genderPref.add(Gender.NON_BINARY);
+  genderPref.add(Gender.GENDERQUEER);
+  genderPref.add(Gender.GENDERFLUID);
+  genderPref.add(Gender.PANGENDER);
+  
+  wisPref.setGenders(genderPref);
+  wisPref.setAgeRange(35,45);
+  
+  HashSet<Religion> religionPref = new HashSet<Religion>();
+  religionPref.add(Religion.OTHER);
+  wisPref.setReligions(religionPref);
+  
+  HashSet<Sign> signPref = new HashSet<Sign>();
+  signPref.add(Sign.TAURUS);
+  signPref.add(Sign.CANCER);
+  signPref.add(Sign.SCORPIO);
+  signPref.add(Sign.CAPRICORN);
+  wisPref.setSign(signPref);
+  
+  HashSet<RelationshipType> rlPref = new HashSet<RelationshipType>();
+  rlPref.add(RelationshipType.STRICTLY_MONOGAMOUS);
+  rlPref.add(RelationshipType.MOSTLY_MONOGAMOUS);
+  
+  wisPref.setRTypes(rlPref);
+  
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary","Not interested if you find your gender on a line. Our signs have GOT to be compatible.\nThe spirits might be free, but I'm not- not interested in polyamory.");
+  Essay qs = new Essay("Questions, Complaints, Improvements?", "There's no Wicca option in the religions menu!");
+  
+  Essay[] essays = new Essay[]{about,qs};
+  
+  wis.setEssays(essays);
+  
+  return wis;
+}
+
+public void generatePopups(Demographics before, Demographics after)
+{
+  Random random = new Random(); //<>//
+  popups = new ArrayList<PopupMessage>();
+  popupLocs = new ArrayList<float[]>();
+  
+  if(before.getHeight() < after.getHeight())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "height_queen", "I love how tall you're becoming! So delciously tall!!!  When they're tall... I want to bawl!"));
+  }
+  else if(before.getHeight() > after.getHeight())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "short_stack", "Shorther!  Shooorter!!! Sortter!!  I love 'em shhort"));
+  }
+  
+  if(before.getAge() < after.getAge())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "death", "You're older than you were before, you creep closer to death......."));
+  }
+  else if(before.getAge() > after.getAge())
+  {
+    popups.add(new PopupMessage(player.getUsername(), "spiffy_jim", "Um... people only age in the opposite direction than the way you're aging.  What gives?"));
+  }
+  
+  Set<Gender> beforeG = before.getGenders();
+  Set<Gender> afterG = after.getGenders();
+  
+  if(!beforeG.contains(Gender.WOMAN) && !beforeG.contains(Gender.TRANS_WOMAN) && !beforeG.contains(Gender.TRANSFEMININE) 
+  && !beforeG.contains(Gender.BIGENDER) && !beforeG.contains(Gender.TWO_SPIRIT) && !beforeG.contains(Gender.HIJRA))
+  {
+    if(afterG.contains(Gender.WOMAN) || afterG.contains(Gender.TRANS_WOMAN) || afterG.contains(Gender.TRANSFEMININE))
+    {
+      popups.add(new PopupMessage(player.getUsername(), "femmme_fatale", "i see you're getting in touch with your femininity.  hmu if you want someone to REALLY get in touch with your femininity ;)"));
+    }
+  }
+  
+  if(!beforeG.contains(Gender.MAN) && !beforeG.contains(Gender.TRANS_MAN) && !beforeG.contains(Gender.TRANSMASCULINE) 
+  && !beforeG.contains(Gender.BIGENDER) && !beforeG.contains(Gender.TWO_SPIRIT) && !beforeG.contains(Gender.HIJRA))
+  {
+    if(afterG.contains(Gender.MAN) || afterG.contains(Gender.TRANS_MAN) || afterG.contains(Gender.TRANSMASCULINE))
+    {
+      popups.add(new PopupMessage(player.getUsername(), "chad_the_dude_hugger", "HULK SMASH! haha no just kidding, but welcome to a more masculine world.  let's get ripped from our pecs to our toes"));
+    }
+  }
+  
+  if(before.getReligion() != after.getReligion())
+  {
+    if(before.getReligion() == null)
+    {
+      popups.add(new PopupMessage(player.getUsername(), "Guru_Child", "I see you've begun a path along " + religionToString.get(after.getReligion()) + ". I wish you luck on your spiritual journey."));
+    }
+    else
+    {
+      popups.add(new PopupMessage(player.getUsername(), "Guru_Child", "Abandoning " + religionToString.get(before.getReligion()) + " must not have been an easy choice.  I hope " +
+        religionToString.get(after.getReligion()) + " will bring you fulfillment."));
+    }
+  }
+  
+  if(before.getEthnicities().size() <=3 && after.getEthnicities().size() > 3)
+  {
+    String message = "I see you're ";
+    
+    for(Ethnicity e: after.getEthnicities())
+    {
+      message = message + ethnicityToString.get(e) + ", ";
+    }
+    
+    message = message + "but where are you FROM, really?";
+    
+    popups.add(new PopupMessage(player.getUsername(), "carhorn_leghorn", message));
+  }
+  
+  if(after.getRelationship() == RelationshipType.STRICTLY_NONMONOGAMOUS || after.getRelationship() == RelationshipType.MOSTLY_NONMONOGAMOUS)
+  {
+    popups.add(new PopupMessage(player.getUsername(), "poly_molly", "oooooo, increasing number of people with whom you feel capable of sharing your affection, huh? hmm?"));
+  }
+  
+  if(after.getRelationship() == RelationshipType.STRICTLY_MONOGAMOUS || after.getRelationship() == RelationshipType.MOSTLY_MONOGAMOUS)
+  {
+    popups.add(new PopupMessage(player.getUsername(), "youre_the_only_one", "Now that you only feel like there's only one person romantically at a time for you, I hope that person is me!"));
+  }
+  
+  for(int i = 0; i < popups.size(); i++)
+  {
+    popupLocs.add(new float[2]);
+    popupLocs.get(i)[0] = random.nextInt(screen_w-500);
+    popupLocs.get(i)[1] = random.nextInt(screen_h-400);
+  }
+}
+
+public void displayFeedback()
+{
+  
+  textFont(TEXT_FONT);
+  textSize(400);
+  textAlign(CENTER);
+  fill(0,feedbackAlpha);
+  text(feedbackMessage,screen_w/2,screen_h/2 + 100);
+  
+  if(feedbackAlpha > 0)
+  {
+    feedbackAlpha = feedbackAlpha-1;
+  }
+}
+
+public void setFeedback(String msg)
+{
+  feedbackAlpha = 100;
+  feedbackMessage = msg;
+}
 
 
 
@@ -1465,6 +2329,43 @@ class Demographics
     changed = true;
   }
   
+  public Demographics copy()
+  {
+    Demographics copy = new Demographics(prefix + "_copy");
+    for(Gender g:gender)
+    {
+      copy.addGender(g);
+    }
+    for(Orientation o:orientation)
+    {
+      copy.addOrientation(o);
+    }
+    for(Ethnicity e:ethnicity)
+    {
+      copy.addEthnicity(e);
+    }
+    copy.setAge(age);
+    copy.setHeight(human_height);
+    
+    copy.setRelationship(relationship);
+    copy.setBodyType(bodytype);
+    copy.setReligion(religion);
+    copy.setSign(sign);
+    copy.setEducation(education);
+    
+    return copy;
+  }
+  
+  public void setEditing(boolean editing)
+  {
+    this.editing = editing;
+  }
+  
+  public boolean getEditing()
+  {
+    return editing;
+  }
+  
   public boolean getChanged()
   {
     if(changed)
@@ -1480,6 +2381,39 @@ class Demographics
   
   public void drawAt(float x, float y, PFont TEXT_FONT, PFont BUTTON_FONT)
   {
+    int dispAge = -1;
+    if(editing)
+    {
+      try
+      {
+        dispAge = Integer.parseInt(cp5.get(Textfield.class, "demoAge").getText());
+      }
+      catch(Exception e)
+      {}
+    }
+    int disp_height = -1;
+    int feet = 0;
+    int inches = 0;
+    if(editing)
+    {
+      try
+      {
+        feet = Integer.parseInt(cp5.get(Textfield.class, "demoFeet").getText());
+        feet = feet*12;
+      }
+      catch(Exception e)
+      {}
+        
+      try
+      {
+        inches = Integer.parseInt(cp5.get(Textfield.class, "demoInches").getText());
+      }
+      catch(Exception e)
+      {}
+      disp_height = feet+inches;
+    }
+    
+    
     int d_width = MIN_WIDTH;
     int d_height = MIN_HEIGHT;
     float interval = 25;
@@ -1509,6 +2443,18 @@ class Demographics
       fill(okcButton_mouseover);
       if(mousePressed && mouseButton == LEFT && okToSwitch)
       {
+        if(editing)
+        {
+          if(dispAge > 0)
+          {
+            age = dispAge;
+          }
+          
+          if(disp_height > 0)
+          {
+            human_height = disp_height;
+          }
+        }
         editing = !editing;
         okToSwitch = false;
         currentSwitchInterval = 0;
@@ -1654,9 +2600,12 @@ class Demographics
   {
     String ageDescription = "Age:";
     
-    if(age > 0)
+    if(!editing)
     {
-      ageDescription = ageDescription + " " + age;
+      if(age > 0)
+      {
+        ageDescription = ageDescription + " " + age;
+      }
     }
     
     text(ageDescription, disp_x, disp_y);
@@ -1798,21 +2747,24 @@ class Demographics
   {
     String heightDescription = "Height: ";
     
-    int feet = human_height/12;
-    int inches = human_height%12;
-    
-    if(feet > 0)
+    if(!editing)
     {
-      heightDescription = heightDescription + feet + " feet";
+      int feet = human_height/12;
+      int inches = human_height%12;
+      
+      if(feet > 0)
+      {
+        heightDescription = heightDescription + feet + " feet";
+        if(inches > 0)
+        {
+          heightDescription = heightDescription + ", ";
+        }
+      }
+      
       if(inches > 0)
       {
-        heightDescription = heightDescription + ", ";
+        heightDescription = heightDescription + inches + " inches";
       }
-    }
-    
-    if(inches > 0)
-    {
-      heightDescription = heightDescription + inches + " inches";
     }
     
     text(heightDescription, disp_x, disp_y);
@@ -2306,7 +3258,7 @@ class Demographics
 }
 
 public void demoGender(int n)
-{
+{ //<>//
   Gender selectedGender = stringToGender.get(
                           cp5.get(ScrollableList.class, "demoGender")
                              .getItem(n).get("name"));
@@ -2315,12 +3267,23 @@ public void demoGender(int n)
   
   if(genders.contains(selectedGender))
   {
-    demo.removeGender(selectedGender);
+    if(demo.removeGender(selectedGender))
+    {
+      cp5.get(ScrollableList.class, "demoGender").getItem(n).put("color",oldColor);
+      cp5.get(ScrollableList.class, "demoGender").close();
+    }
+    
   }
   else
   {
-    demo.addGender(selectedGender);
+    if(demo.addGender(selectedGender))
+    {
+      cp5.get(ScrollableList.class, "demoGender").getItem(n).put("color",selected);
+      cp5.get(ScrollableList.class, "demoGender").close();
+    }
   }
+  
+  
   
 }
 
@@ -2334,11 +3297,19 @@ public void demoOrientation(int n)
   
   if(orientations.contains(selectedOrientation))
   {
-    demo.removeOrientation(selectedOrientation);
+    if(demo.removeOrientation(selectedOrientation))
+    {
+      cp5.get(ScrollableList.class, "demoOrientation").getItem(n).put("color",oldColor);
+      cp5.get(ScrollableList.class, "demoOrientation").close();
+    }
   }
   else
   {
-    demo.addOrientation(selectedOrientation);
+    if(demo.addOrientation(selectedOrientation))
+    {
+      cp5.get(ScrollableList.class, "demoOrientation").getItem(n).put("color",selected);
+      cp5.get(ScrollableList.class, "demoOrientation").close();
+    }
   }
   
 }
@@ -2353,11 +3324,19 @@ public void demoEthnicity(int n)
   
   if(ethnicities.contains(selectedEthnicity))
   {
-    demo.removeEthnicity(selectedEthnicity);
+    if(demo.removeEthnicity(selectedEthnicity))
+    {
+      cp5.get(ScrollableList.class, "demoEthnicity").getItem(n).put("color",oldColor);
+      cp5.get(ScrollableList.class, "demoEthnicity").close();
+    }
   }
   else
   {
-    demo.addEthnicity(selectedEthnicity);
+    if(demo.addEthnicity(selectedEthnicity))
+    {
+      cp5.get(ScrollableList.class, "demoEthnicity").getItem(n).put("color",selected);
+      cp5.get(ScrollableList.class, "demoEthnicity").close();
+    }
   }
   
 }
@@ -2369,6 +3348,7 @@ public void demoRelationship(int n)
                              .getItem(n).get("name"));
   
   demo.setRelationship(selectedRelationship); 
+  cp5.get(ScrollableList.class, "demoRelationship").close();
 }
 
 public void demoBody(int n)
@@ -2378,6 +3358,7 @@ public void demoBody(int n)
                              .getItem(n).get("name"));
   
   demo.setBodyType(selectedBody); 
+  cp5.get(ScrollableList.class, "demoBody").close();
 }
 
 public void demoReligion(int n)
@@ -2387,6 +3368,7 @@ public void demoReligion(int n)
                              .getItem(n).get("name"));
   
   demo.setReligion(selectedReligion); 
+  cp5.get(ScrollableList.class, "demoReligion").close();
 }
 
 public void demoSign(int n)
@@ -2395,7 +3377,8 @@ public void demoSign(int n)
                           cp5.get(ScrollableList.class, "demoSign")
                              .getItem(n).get("name"));
   
-  demo.setSign(selectedSign); 
+  demo.setSign(selectedSign);
+  cp5.get(ScrollableList.class, "demoSign").close();
 }
 
 public void demoEducation(int n)
@@ -2404,7 +3387,8 @@ public void demoEducation(int n)
                           cp5.get(ScrollableList.class, "demoEducation")
                              .getItem(n).get("name"));
   
-  demo.setEducation(selectedEducation); 
+  demo.setEducation(selectedEducation);
+  cp5.get(ScrollableList.class, "demoEducation").close();
 }
 
 public void demoAge(String theText)
@@ -2708,6 +3692,9 @@ class EnemyProfile
   private int currToggle;
   private int toggleInterval = 10;
   private int demoPage;
+  private int tickFrames = 2;
+  private int currTick;
+  private String[] feedbacks = {"WOW!","GOOD","GREAT","BEST!","LOVE"};
   
   public EnemyProfile(String username, Profile player)
   {
@@ -2725,6 +3712,7 @@ class EnemyProfile
     okToToggle = true;
     currToggle = 0;
     demoPage = 1;
+    currTick = 0;
   }
   
   public void setTarget(Profile p)
@@ -2740,6 +3728,11 @@ class EnemyProfile
   public boolean getVisible()
   {
     return visible;
+  }
+  
+  public String getUsername()
+  {
+    return username;
   }
   
   public void setImage(PImage img)
@@ -2829,6 +3822,7 @@ class EnemyProfile
     textAlign(CENTER);
     
     text(username,username_x,username_y,200,100);
+    
     float textHeight = wordWrap(username, 200).size() * g.textLeading;
     
     float match_x = x+(prof_w/2);
@@ -2874,20 +3868,66 @@ class EnemyProfile
     }
     else
     {
-      fill(100);
+      fill(okcPrivateQ2);
     }
     
     if(player.questionsChanged() || firstDraw)
     {
+      int oldMatch = targetMatch;
       //This will be more complicated ideally
-      currMatch = getMatch();
       targetMatch = getMatch();
+      if(visible && targetMatch > oldMatch)
+      {
+        Random random = new Random();
+        String feedback = feedbacks[random.nextInt(feedbacks.length)];
+        setFeedback(feedback);
+      }
     }
     
-    String matchText = currMatch + "% Match";
+    if(currMatch != targetMatch)
+    {
+      if(tickFrames == currTick)
+      {
+        if(currMatch > targetMatch)
+        {
+          currMatch-=1;
+          currTick = 0;
+        }
+        else
+        {
+          currMatch+=1;
+          currTick=0;
+        }
+      }
+      else
+      {
+        currTick+=1;
+      }
+    }
+    else
+    {
+      currTick = 0;
+    }
+    
+    String matchText = "--% Match";
+    if(visible)
+    {
+      matchText = currMatch + "% Match";
+    }
     
     text(matchText, match_x, match_y);
     textAlign(CENTER);
+    
+    textFont(USERNAME_SUBTITLE_FONT);
+    textSize(16);
+    if(visible)
+    {
+      text("Visible",match_x,match_y+15);
+    }
+    else
+    {
+      text("Invisible",match_x,match_y+15);
+    }
     
     String lookingForDescription = "Looking for:";
     
@@ -2923,9 +3963,9 @@ class EnemyProfile
     textAlign(CENTER);
     
     float looking_x = x+50;
-    float looking_y = match_y + 30;
+    float looking_y = match_y + 40;
     
-    text(lookingForDescription,looking_x,looking_y,200,100);
+    text(lookingForDescription,looking_x,looking_y,200,200);
     
     //Now, essays
     float essay_x = x+310;
@@ -2971,6 +4011,13 @@ class EnemyProfile
     
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((eIndex+1) + "/" + (essays.length),essay_x+200,essay_y+10);
     
     rect_x = essay_x + 400 - button_w;
     rect_y = essay_y;
@@ -3061,6 +4108,13 @@ class EnemyProfile
     
     buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),question_x+150,question_y+10);
     
      rect_x = question_x + 300 - button_w;
      rect_y = question_y;
@@ -3448,6 +4502,83 @@ class EnemyProfile
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
   }
 }
+public class PopupMessage
+{
+  private String to;
+  private String from;
+  private String message;
+  private boolean visible;
+  private final int box_width = 500;
+  private boolean okToToggle;
+  
+  public PopupMessage(String to, String from, String message)
+  {
+    this.to = to;
+    this.from = from;
+    this.message = message;
+    visible = true;
+    okToToggle = true;
+  }
+  
+  public void drawAt(float x, float y)
+  {
+    if(visible)
+    {
+      
+      String full = "To: " + to + "\nFrom: " + from + "\n" + message;
+      textFont(TEXT_FONT);
+      
+      float textHeight = wordWrap(full, box_width-50).size() * g.textLeading;
+      stroke(0);
+      fill(okcOffWhite);
+      
+      rect(x,y,box_width,textHeight+100,7);
+      
+      fill(0);
+      textAlign(LEFT);
+      text(full,x+5,y+5,box_width-50,textHeight+50);
+      
+      
+      float button_w = 30;
+      float button_h = 30;
+      
+      float rect_x = x+box_width-button_w;
+      float rect_y = y;
+
+      if(overRect(rect_x,rect_y,button_w,button_h))
+      {
+        fill(red_mouseover);
+        if(mousePressed && mouseButton == LEFT & okToToggle)
+        {
+          okToToggle = false;
+          setVisible(false);
+        }
+      }
+      else
+      {
+          fill(red);
+      }
+      rect(rect_x,rect_y,button_w,button_h,2);
+      
+      textFont(BUTTON_FONT);
+      fill(255);
+      textAlign(CENTER);
+      
+      String buttonText = "X";
+      text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    }
+  }
+  
+  public boolean getVisible()
+  {
+    return visible;
+  }
+  
+  public void setVisible(boolean visible)
+  {
+    this.visible = visible;
+  }
+}
 class Profile
 {
   private String username;
@@ -3522,18 +4653,17 @@ class Profile
     float rect_x = x;
     float rect_y = y;
     
-    if(questions[qIndex].getEditing())
+    boolean editing = questions[qIndex].getEditing();
+    for(Question q: questions)
     {
-      fill(100);
+     q.setEditing(editing);
     }
-    else
-    {
+
       if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex-1;
            if(qIndex < 0)
            {
@@ -3547,7 +4677,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -3557,21 +4686,21 @@ class Profile
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
     
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),x+150,y+10);
+    
      rect_x = x + 300 - button_w;
      rect_y = y;
     
-    if(questions[qIndex].getEditing())
-    {
-      fill(100);
-    }
-    else
-    {
       if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex+1;
            if(qIndex > questions.length-1)
            {
@@ -3585,7 +4714,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -3634,7 +4762,7 @@ class Profile
     }
     
     //Remove final comma
-    if(subheading.charAt(subheading.length()-1) == ',')
+    if(subheading.length() != 0 && subheading.charAt(subheading.length()-1) == ',')
     {
       subheading = subheading
         .substring(0,subheading.length()-1);
@@ -3676,18 +4804,17 @@ class Profile
     float rect_x = question_x;
     float rect_y = question_y;
     
-    if(questions[qIndex].getEditing())
+   boolean editing = questions[qIndex].getEditing();
+    for(Question q: questions)
     {
-      fill(100);
+     q.setEditing(editing);
     }
-    else
-    {
+
       if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex-1;
            if(qIndex < 0)
            {
@@ -3701,7 +4828,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -3711,21 +4837,21 @@ class Profile
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
     
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),question_x+150,question_y+10);
+    
      rect_x = question_x + 300 - button_w;
      rect_y = question_y;
     
-    if(questions[qIndex].getEditing())
-    {
-      fill(100);
-    }
-    else
-    {
-      if(overRect(rect_x,rect_y,button_w,button_h))
+    if(overRect(rect_x,rect_y,button_w,button_h))
       {
         fill(okcButton_mouseover);
         if(mousePressed && mouseButton == LEFT && okToToggle)
         {
-           questions[qIndex].setEditing(false);
            qIndex = qIndex+1;
            if(qIndex > questions.length-1)
            {
@@ -3739,7 +4865,6 @@ class Profile
       {
           fill(okcButton);
       }
-    }
     rect(rect_x,rect_y,button_w,button_h,2);
     
     textFont(BUTTON_FONT);
@@ -3794,8 +4919,9 @@ class Question
   private int switchInterval = 10;
   private int currSwitch;
   private boolean changed;
+  private boolean hidden;
   
-  public Question(String text, String[] options, boolean editable)
+  public Question(String text, String[] options, boolean editable, boolean hidden)
   {
     this.text = text;
     this.options = options;
@@ -3806,6 +4932,12 @@ class Question
     currSwitch = 0;
     okToSwitch = true;
     changed = true;
+    this.hidden = hidden;
+  }
+  
+  public Question(String text, String[] options, boolean editable)
+  {
+    this(text, options, editable, false);
   }
   
   public boolean getChanged()
@@ -3843,10 +4975,17 @@ class Question
     int q_height = MIN_HEIGHT;
     
     noStroke();
-    fill(okcOffWhite);
+    if(hidden)
+    {
+      fill(okcPrivateQ);
+    }
+    else
+    {
+      fill(okcOffWhite);
+    }
     rect(x, y, q_width, q_height, 7);
     
-    if(editable)
+    if(editable && !hidden)
     {
       //Make Edit Button
       float button_w = 80;
@@ -3905,90 +5044,21 @@ class Question
     float text_w = 200;
     float text_h = 70;
     text(text,x+50,y+16,text_w,text_h);
-    
-    float textHeight = wordWrap(text, (int)text_w+50).size() * g.textLeading;
-    
-    float opt_height = y+16+textHeight+5;
-    
-    for(int i = 0; i < options.length; i++)
+    if(hidden)
     {
-      String option = options[i];
-      
-      //Make Button
-      float circle_x = x+20;
-      float circle_y = opt_height;
-      int circle_d = 20;
-      
-      if(overCircle(circle_x, circle_y, circle_d))
-      {
-        if (mousePressed && mouseButton == LEFT && editing)
-        {
-          fill(0);
-          selectYourChoice(i);
-        }
-        else
-        {
-          if(yourChoice != null && yourChoice == i)
-          {
-            fill(0);
-          }  
-          else
-          {
-            fill(204);
-          }
-        }
-      }
-      else
-      {
-        if(yourChoice != null && yourChoice == i)
-        {
-          fill(0);
-        }
-        else
-        {
-          fill(255);
-        }
-      }
-      stroke(0);
-      if(!editing && yourChoice != null && yourChoice == i)
-      {
-        ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
-      }
-      else if(editing)
-      {
-        ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
-      }
-      
-      //Write Text
-      textFont(OPTIONS_FONT);
-      fill(0);
-      textAlign(LEFT);
-      
-      float option_x = x+40;
-      float option_y = opt_height+4;
-      text(option,option_x,option_y);
-      
-      //Increment
-      opt_height = opt_height + 25;
-    }
-    
-    opt_height = opt_height-4;
-    if(editable)
-    {
-      stroke(0);
-      line(x+20, opt_height, x+q_width-20, opt_height);
-      
-      opt_height = opt_height + 20;
-      
-      textFont(TEXT_FONT);
-      textSize(13);
-      fill(0);
+      textFont(USERNAME_FONT);
+      fill(okcPrivateQ2);
+      textSize(30);
       textAlign(CENTER);
-      float text_x = (q_width)/2 + x;
-      float text_y = opt_height;
-      text("Answer(s) You Will Accept",text_x,text_y);
       
-      opt_height = opt_height + 10;
+      text("PRIVATE",x+(q_width/2),y+(q_height)/2);
+    }
+    else
+    {
+      float textHeight = wordWrap(text, (int)text_w).size() * g.textLeading;
+      
+      float opt_height = y+16+textHeight+5;
+      
       for(int i = 0; i < options.length; i++)
       {
         String option = options[i];
@@ -3996,18 +5066,18 @@ class Question
         //Make Button
         float circle_x = x+20;
         float circle_y = opt_height;
-        int circle_d = 20;
+        int circle_d = 30;
         
         if(overCircle(circle_x, circle_y, circle_d))
         {
           if (mousePressed && mouseButton == LEFT && editing)
           {
             fill(0);
-            selectTheirChoice(i);
+            selectYourChoice(i);
           }
           else
           {
-            if(theirChoice != null && theirChoice == i)
+            if(yourChoice != null && yourChoice == i)
             {
               fill(0);
             }  
@@ -4019,7 +5089,7 @@ class Question
         }
         else
         {
-          if(theirChoice != null && theirChoice == i)
+          if(yourChoice != null && yourChoice == i)
           {
             fill(0);
           }
@@ -4029,7 +5099,7 @@ class Question
           }
         }
         stroke(0);
-        if(!editing && theirChoice != null && theirChoice == i)
+        if(!editing && yourChoice != null && yourChoice == i)
         {
           ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
         }
@@ -4050,17 +5120,97 @@ class Question
         //Increment
         opt_height = opt_height + 25;
       }
+      
+      opt_height = opt_height-4;
+      if(editable)
+      {
+        stroke(0);
+        line(x+20, opt_height, x+q_width-20, opt_height);
+        
+        opt_height = opt_height + 20;
+        
+        textFont(TEXT_FONT);
+        textSize(13);
+        fill(0);
+        textAlign(CENTER);
+        float text_x = (q_width)/2 + x;
+        float text_y = opt_height;
+        text("Answer You Will Accept",text_x,text_y);
+        
+        opt_height = opt_height + 10;
+        for(int i = 0; i < options.length; i++)
+        {
+          String option = options[i];
+          
+          //Make Button
+          float circle_x = x+20;
+          float circle_y = opt_height;
+          int circle_d = 30;
+          
+          if(overCircle(circle_x, circle_y, circle_d))
+          {
+            if (mousePressed && mouseButton == LEFT && editing)
+            {
+              fill(0);
+              selectTheirChoice(i);
+            }
+            else
+            {
+              if(theirChoice != null && theirChoice == i)
+              {
+                fill(0);
+              }  
+              else
+              {
+                fill(204);
+              }
+            }
+          }
+          else
+          {
+            if(theirChoice != null && theirChoice == i)
+            {
+              fill(0);
+            }
+            else
+            {
+              fill(255);
+            }
+          }
+          stroke(0);
+          if(!editing && theirChoice != null && theirChoice == i)
+          {
+            ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+          }
+          else if(editing)
+          {
+            ellipse(circle_x, circle_y, circle_d/2, circle_d/2);
+          }
+          
+          //Write Text
+          textFont(OPTIONS_FONT);
+          fill(0);
+          textAlign(LEFT);
+          
+          float option_x = x+40;
+          float option_y = opt_height+4;
+          text(option,option_x,option_y);
+          
+          //Increment
+          opt_height = opt_height + 25;
+        }
+      }
+      if(currSwitch < switchInterval)
+      {
+        currSwitch = currSwitch+1;
+      }
+      else
+      {
+        okToSwitch = true;
+      }
+      
+      fill(255);
     }
-    if(currSwitch < switchInterval)
-    {
-      currSwitch = currSwitch+1;
-    }
-    else
-    {
-      okToSwitch = true;
-    }
-    
-    fill(255);
   }
   
   public String getText()
@@ -4097,7 +5247,7 @@ class Question
     return editing;
   }
 }
-  public void settings() {  size(1300,700); }
+  public void settings() {  size(1250,700); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "okc" };
     if (passedArgs != null) {

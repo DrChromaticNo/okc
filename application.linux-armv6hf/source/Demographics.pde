@@ -111,6 +111,43 @@ class Demographics
     changed = true;
   }
   
+  public Demographics copy()
+  {
+    Demographics copy = new Demographics(prefix + "_copy");
+    for(Gender g:gender)
+    {
+      copy.addGender(g);
+    }
+    for(Orientation o:orientation)
+    {
+      copy.addOrientation(o);
+    }
+    for(Ethnicity e:ethnicity)
+    {
+      copy.addEthnicity(e);
+    }
+    copy.setAge(age);
+    copy.setHeight(human_height);
+    
+    copy.setRelationship(relationship);
+    copy.setBodyType(bodytype);
+    copy.setReligion(religion);
+    copy.setSign(sign);
+    copy.setEducation(education);
+    
+    return copy;
+  }
+  
+  public void setEditing(boolean editing)
+  {
+    this.editing = editing;
+  }
+  
+  public boolean getEditing()
+  {
+    return editing;
+  }
+  
   public boolean getChanged()
   {
     if(changed)
@@ -126,6 +163,39 @@ class Demographics
   
   public void drawAt(float x, float y, PFont TEXT_FONT, PFont BUTTON_FONT)
   {
+    int dispAge = -1;
+    if(editing)
+    {
+      try
+      {
+        dispAge = Integer.parseInt(cp5.get(Textfield.class, "demoAge").getText());
+      }
+      catch(Exception e)
+      {}
+    }
+    int disp_height = -1;
+    int feet = 0;
+    int inches = 0;
+    if(editing)
+    {
+      try
+      {
+        feet = Integer.parseInt(cp5.get(Textfield.class, "demoFeet").getText());
+        feet = feet*12;
+      }
+      catch(Exception e)
+      {}
+        
+      try
+      {
+        inches = Integer.parseInt(cp5.get(Textfield.class, "demoInches").getText());
+      }
+      catch(Exception e)
+      {}
+      disp_height = feet+inches;
+    }
+    
+    
     int d_width = MIN_WIDTH;
     int d_height = MIN_HEIGHT;
     float interval = 25;
@@ -155,6 +225,18 @@ class Demographics
       fill(okcButton_mouseover);
       if(mousePressed && mouseButton == LEFT && okToSwitch)
       {
+        if(editing)
+        {
+          if(dispAge > 0)
+          {
+            age = dispAge;
+          }
+          
+          if(disp_height > 0)
+          {
+            human_height = disp_height;
+          }
+        }
         editing = !editing;
         okToSwitch = false;
         currentSwitchInterval = 0;
@@ -300,9 +382,12 @@ class Demographics
   {
     String ageDescription = "Age:";
     
-    if(age > 0)
+    if(!editing)
     {
-      ageDescription = ageDescription + " " + age;
+      if(age > 0)
+      {
+        ageDescription = ageDescription + " " + age;
+      }
     }
     
     text(ageDescription, disp_x, disp_y);
@@ -444,21 +529,24 @@ class Demographics
   {
     String heightDescription = "Height: ";
     
-    int feet = human_height/12;
-    int inches = human_height%12;
-    
-    if(feet > 0)
+    if(!editing)
     {
-      heightDescription = heightDescription + feet + " feet";
+      int feet = human_height/12;
+      int inches = human_height%12;
+      
+      if(feet > 0)
+      {
+        heightDescription = heightDescription + feet + " feet";
+        if(inches > 0)
+        {
+          heightDescription = heightDescription + ", ";
+        }
+      }
+      
       if(inches > 0)
       {
-        heightDescription = heightDescription + ", ";
+        heightDescription = heightDescription + inches + " inches";
       }
-    }
-    
-    if(inches > 0)
-    {
-      heightDescription = heightDescription + inches + " inches";
     }
     
     text(heightDescription, disp_x, disp_y);
@@ -952,7 +1040,7 @@ class Demographics
 }
 
 void demoGender(int n)
-{
+{ //<>//
   Gender selectedGender = stringToGender.get(
                           cp5.get(ScrollableList.class, "demoGender")
                              .getItem(n).get("name"));
@@ -961,12 +1049,23 @@ void demoGender(int n)
   
   if(genders.contains(selectedGender))
   {
-    demo.removeGender(selectedGender);
+    if(demo.removeGender(selectedGender))
+    {
+      cp5.get(ScrollableList.class, "demoGender").getItem(n).put("color",oldColor);
+      cp5.get(ScrollableList.class, "demoGender").close();
+    }
+    
   }
   else
   {
-    demo.addGender(selectedGender);
+    if(demo.addGender(selectedGender))
+    {
+      cp5.get(ScrollableList.class, "demoGender").getItem(n).put("color",selected);
+      cp5.get(ScrollableList.class, "demoGender").close();
+    }
   }
+  
+  
   
 }
 
@@ -980,11 +1079,19 @@ void demoOrientation(int n)
   
   if(orientations.contains(selectedOrientation))
   {
-    demo.removeOrientation(selectedOrientation);
+    if(demo.removeOrientation(selectedOrientation))
+    {
+      cp5.get(ScrollableList.class, "demoOrientation").getItem(n).put("color",oldColor);
+      cp5.get(ScrollableList.class, "demoOrientation").close();
+    }
   }
   else
   {
-    demo.addOrientation(selectedOrientation);
+    if(demo.addOrientation(selectedOrientation))
+    {
+      cp5.get(ScrollableList.class, "demoOrientation").getItem(n).put("color",selected);
+      cp5.get(ScrollableList.class, "demoOrientation").close();
+    }
   }
   
 }
@@ -999,11 +1106,19 @@ void demoEthnicity(int n)
   
   if(ethnicities.contains(selectedEthnicity))
   {
-    demo.removeEthnicity(selectedEthnicity);
+    if(demo.removeEthnicity(selectedEthnicity))
+    {
+      cp5.get(ScrollableList.class, "demoEthnicity").getItem(n).put("color",oldColor);
+      cp5.get(ScrollableList.class, "demoEthnicity").close();
+    }
   }
   else
   {
-    demo.addEthnicity(selectedEthnicity);
+    if(demo.addEthnicity(selectedEthnicity))
+    {
+      cp5.get(ScrollableList.class, "demoEthnicity").getItem(n).put("color",selected);
+      cp5.get(ScrollableList.class, "demoEthnicity").close();
+    }
   }
   
 }
@@ -1015,6 +1130,7 @@ void demoRelationship(int n)
                              .getItem(n).get("name"));
   
   demo.setRelationship(selectedRelationship); 
+  cp5.get(ScrollableList.class, "demoRelationship").close();
 }
 
 void demoBody(int n)
@@ -1024,6 +1140,7 @@ void demoBody(int n)
                              .getItem(n).get("name"));
   
   demo.setBodyType(selectedBody); 
+  cp5.get(ScrollableList.class, "demoBody").close();
 }
 
 void demoReligion(int n)
@@ -1033,6 +1150,7 @@ void demoReligion(int n)
                              .getItem(n).get("name"));
   
   demo.setReligion(selectedReligion); 
+  cp5.get(ScrollableList.class, "demoReligion").close();
 }
 
 void demoSign(int n)
@@ -1041,7 +1159,8 @@ void demoSign(int n)
                           cp5.get(ScrollableList.class, "demoSign")
                              .getItem(n).get("name"));
   
-  demo.setSign(selectedSign); 
+  demo.setSign(selectedSign);
+  cp5.get(ScrollableList.class, "demoSign").close();
 }
 
 void demoEducation(int n)
@@ -1050,7 +1169,8 @@ void demoEducation(int n)
                           cp5.get(ScrollableList.class, "demoEducation")
                              .getItem(n).get("name"));
   
-  demo.setEducation(selectedEducation); 
+  demo.setEducation(selectedEducation);
+  cp5.get(ScrollableList.class, "demoEducation").close();
 }
 
 void demoAge(String theText)

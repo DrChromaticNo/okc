@@ -246,6 +246,7 @@ class EnemyProfile
   private int demoPage;
   private int tickFrames = 2;
   private int currTick;
+  private String[] feedbacks = {"WOW!","GOOD","GREAT","BEST!","LOVE"};
   
   public EnemyProfile(String username, Profile player)
   {
@@ -279,6 +280,11 @@ class EnemyProfile
   public boolean getVisible()
   {
     return visible;
+  }
+  
+  public String getUsername()
+  {
+    return username;
   }
   
   public void setImage(PImage img)
@@ -368,6 +374,7 @@ class EnemyProfile
     textAlign(CENTER);
     
     text(username,username_x,username_y,200,100);
+    
     float textHeight = wordWrap(username, 200).size() * g.textLeading;
     
     float match_x = x+(prof_w/2);
@@ -418,8 +425,15 @@ class EnemyProfile
     
     if(player.questionsChanged() || firstDraw)
     {
+      int oldMatch = targetMatch;
       //This will be more complicated ideally
       targetMatch = getMatch();
+      if(visible && targetMatch > oldMatch)
+      {
+        Random random = new Random();
+        String feedback = feedbacks[random.nextInt(feedbacks.length)];
+        setFeedback(feedback);
+      }
     }
     
     if(currMatch != targetMatch)
@@ -466,7 +480,6 @@ class EnemyProfile
     {
       text("Invisible",match_x,match_y+15);
     }
-    
     
     String lookingForDescription = "Looking for:";
     

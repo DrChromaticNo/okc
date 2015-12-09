@@ -43,7 +43,7 @@ final color okcPrivateQ2 = color(148,154,167);
 final color green = color(0,192,0);
 final color red = color(248,55,18);
 final color red_mouseover = color(251,142,123);
-final int TIMER_LENGTH = 2 * 60 * 1000;
+final int TIMER_LENGTH = 2 * 10 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
 final int screen_w = 1250;
 final int screen_h = 700;
@@ -74,6 +74,9 @@ boolean firstPops;
 
 boolean draw35;
 
+int feedbackAlpha = 0;
+String feedbackMessage = "";
+
 void setup()
 {
   setupMaps();
@@ -96,10 +99,22 @@ void setup()
   EnemyProfile jmc = make_jughead_muscle_carl(player);
   EnemyProfile BR = make_Book_Reader(player);
   EnemyProfile wis = make_Wicca_is_Sicca(player);
+  EnemyProfile hmcltm = make_hold_me_closer_tiny_marxist(player);
   
-  enemies[0] = wis;
-  enemies[1] = BR;
-  enemies[2] = jmc;
+  ArrayList<EnemyProfile> options = new ArrayList<EnemyProfile>();
+  options.add(jmc);
+  options.add(BR);
+  options.add(wis);
+  options.add(hmcltm);
+  
+  Random random = new Random();
+  
+  for(int i = 0; i < 3; i++)
+  {
+    int choice = random.nextInt(options.size());
+    EnemyProfile enemy = options.remove(choice);
+    enemies[i] = enemy;
+  }
   
   stage = 0;
   newStage = true;
@@ -441,6 +456,7 @@ void drawScreen6()
     
     text("vTHEMv",screen_w/2,370);
     
+    println("drawing enemy");
     enemy.drawAt(10,380);
     
     textFont(TIMER_FONT);
@@ -1828,6 +1844,125 @@ EnemyProfile make_Book_Reader(Profile target)
   return BR;
 }
 
+EnemyProfile make_hold_me_closer_tiny_marxist(Profile target)
+{
+  EnemyProfile hmcltm = new EnemyProfile("HoldMeCloserTinyMarxist", target);
+  
+  //First, demos
+  Demographics hmcltmDemo = hmcltm.getDemo();
+  hmcltmDemo.addGender(Gender.CIS_MAN);
+  hmcltmDemo.setAge(45);
+  hmcltmDemo.addOrientation(Orientation.STRAIGHT);
+  hmcltmDemo.addEthnicity(Ethnicity.INDIAN);
+  hmcltmDemo.setHeight(5*12 + 8);
+  hmcltmDemo.setRelationship(RelationshipType.MOSTLY_NONMONOGAMOUS);
+  hmcltmDemo.setBodyType(BodyType.USED_UP);
+  hmcltmDemo.setSign(Sign.CAPRICORN);
+  hmcltmDemo.setReligion(Religion.ATHEISM);
+  hmcltmDemo.setEducation(Education.UNIVERSITY);
+  
+  //Now, Questions
+  
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
+  
+  Q1.selectYourChoice(0);
+  Q1.selectTheirChoice(0);
+  
+  Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, false);
+  
+  Q2.selectYourChoice(0);
+  Q2.selectTheirChoice(0);
+  
+  Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, false);
+  
+  Q3.selectYourChoice(0);
+  Q3.selectTheirChoice(0);
+  
+  Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, false);
+  
+  Q4.selectYourChoice(1);
+  Q4.selectTheirChoice(1);
+  
+  Question Q5 = new Question("Do you think the public should have access to any literature, regardless of its content?", new String[]{"Yes","No, some things should be censored"}, false);
+  
+  Q5.selectYourChoice(0);
+  Q5.selectTheirChoice(0);
+  
+  Question Q6 = new Question("Which of the following do you find most liberating?", new String[]{"Travel","Financial Independence","Art","Sexuality"}, false, true);
+  
+  Q6.selectYourChoice(1);
+  Q6.selectTheirChoice(1);
+  
+  Question Q7 = new Question("Would you launch nuclear weapons under any circumstances?", new String[]{"Yes","No"}, false);
+  
+  Q7.selectYourChoice(1);
+  Q7.selectTheirChoice(1);
+  
+  Question Q8 = new Question("Would you strongly prefer to go out with someone of your own skin color/racial background?", new String[]{"Yes","No"}, false);
+  
+  Q8.selectYourChoice(1);
+  Q8.selectTheirChoice(1);
+  
+  Question Q9 = new Question("How important to you is a potential match's sense of humor?", new String[]{"Very important","Somewhat important","Not important"}, false, true);
+  
+  Q9.selectYourChoice(1);
+  Q9.selectTheirChoice(1);
+  
+  Question Q10 = new Question("Do you think homosexuality is a sin?", new String[]{"Yes","No"}, false);
+  
+  Q10.selectYourChoice(1);
+  Q10.selectTheirChoice(1);
+  
+  Question[] questions = new Question[]{Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10};
+  hmcltm.setQuestions(questions);
+  
+  //Preferences
+  
+  Preference hmcltmPref = hmcltm.getPreference();
+  HashSet<Gender> genderPref = new HashSet<Gender>();
+  genderPref.add(Gender.CIS_WOMAN);
+  genderPref.add(Gender.WOMAN);
+  genderPref.add(Gender.TRANSFEMININE);
+  genderPref.add(Gender.TRANS_WOMAN);
+  genderPref.add(Gender.TWO_SPIRIT);
+  genderPref.add(Gender.INTERSEX);
+  genderPref.add(Gender.BIGENDER);
+  genderPref.add(Gender.GENDERQUEER);
+  genderPref.add(Gender.GENDERFLUID);
+  genderPref.add(Gender.PANGENDER);
+  
+  hmcltmPref.setGenders(genderPref);
+  hmcltmPref.setAgeRange(45,55);
+  
+  HashSet<Ethnicity> ethnicityPref = new HashSet<Ethnicity>();
+  ethnicityPref.add(Ethnicity.OTHER);
+  ethnicityPref.add(Ethnicity.BLACK);
+  ethnicityPref.add(Ethnicity.INDIAN);
+  ethnicityPref.add(Ethnicity.NATIVE_AMERICAN);
+  ethnicityPref.add(Ethnicity.MIDDLE_EASTERN);
+  ethnicityPref.add(Ethnicity.ASIAN);
+  ethnicityPref.add(Ethnicity.PACIFIC_ISLANDER);
+  ethnicityPref.add(Ethnicity.HISPANIC_LATIN);
+  hmcltmPref.setEthnicities(ethnicityPref);
+  
+  HashSet<RelationshipType> rlPref = new HashSet<RelationshipType>();
+  rlPref.add(RelationshipType.STRICTLY_NONMONOGAMOUS);
+  rlPref.add(RelationshipType.MOSTLY_NONMONOGAMOUS);
+  
+  hmcltmPref.setRTypes(rlPref);
+  
+  
+  //Essays
+  
+  Essay about = new Essay("My self-summary","My two favorite things are elton john and communism.  No offense, but no white people, please.\nMy heart & the state can only support poly relationships.");
+  
+  Essay[] essays = new Essay[]{about};
+  
+  hmcltm.setEssays(essays);
+  
+  return hmcltm;
+}
+
 EnemyProfile make_Wicca_is_Sicca(Profile target)
 {
   EnemyProfile wis = new EnemyProfile("Wicca_is_Sicca", target);
@@ -1939,7 +2074,7 @@ EnemyProfile make_Wicca_is_Sicca(Profile target)
   
   //Essays
   
-  Essay about = new Essay("My self-summary","Not interested if you find your gender on a line. Our signs have GOT to be compatible.");
+  Essay about = new Essay("My self-summary","Not interested if you find your gender on a line. Our signs have GOT to be compatible.\nThe spirits might be free, but I'm not- not interested in polyamory.");
   Essay qs = new Essay("Questions, Complaints, Improvements?", "There's no Wicca option in the religions menu!");
   
   Essay[] essays = new Essay[]{about,qs};
@@ -2021,8 +2156,15 @@ public void generatePopups(Demographics before, Demographics after)
     popups.add(new PopupMessage(player.getUsername(), "carhorn_leghorn", message));
   }
   
+  if(after.getRelationship() == RelationshipType.STRICTLY_NONMONOGAMOUS || after.getRelationship() == RelationshipType.MOSTLY_NONMONOGAMOUS)
+  {
+    popups.add(new PopupMessage(player.getUsername(), "poly_molly", "oooooo, increasing number of people with whom you feel capable of sharing your affection, huh? hmm?"));
+  }
   
-  
+  if(after.getRelationship() == RelationshipType.STRICTLY_MONOGAMOUS || after.getRelationship() == RelationshipType.MOSTLY_MONOGAMOUS)
+  {
+    popups.add(new PopupMessage(player.getUsername(), "youre_the_only_one", "Now that you only feel like there's only one person romantically at a time for you, I hope that person is me!"));
+  }
   
   for(int i = 0; i < popups.size(); i++)
   {
@@ -2030,4 +2172,25 @@ public void generatePopups(Demographics before, Demographics after)
     popupLocs.get(i)[0] = random.nextInt(screen_w-500);
     popupLocs.get(i)[1] = random.nextInt(screen_h-400);
   }
+}
+
+void displayFeedback()
+{
+  
+  textFont(TEXT_FONT);
+  textSize(400);
+  textAlign(CENTER);
+  fill(0,feedbackAlpha);
+  text(feedbackMessage,screen_w/2,screen_h/2 + 100);
+  
+  if(feedbackAlpha > 0)
+  {
+    feedbackAlpha = feedbackAlpha-1;
+  }
+}
+
+void setFeedback(String msg)
+{
+  feedbackAlpha = 100;
+  feedbackMessage = msg;
 }

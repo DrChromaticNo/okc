@@ -244,6 +244,9 @@ class EnemyProfile
   private int currToggle;
   private int toggleInterval = 10;
   private int demoPage;
+  private int tickFrames = 2;
+  private int currTick;
+  private String[] feedbacks = {"WOW!","GOOD","GREAT","BEST!","LOVE"};
   
   public EnemyProfile(String username, Profile player)
   {
@@ -261,6 +264,7 @@ class EnemyProfile
     okToToggle = true;
     currToggle = 0;
     demoPage = 1;
+    currTick = 0;
   }
   
   public void setTarget(Profile p)
@@ -276,6 +280,11 @@ class EnemyProfile
   public boolean getVisible()
   {
     return visible;
+  }
+  
+  public String getUsername()
+  {
+    return username;
   }
   
   public void setImage(PImage img)
@@ -365,6 +374,7 @@ class EnemyProfile
     textAlign(CENTER);
     
     text(username,username_x,username_y,200,100);
+    
     float textHeight = wordWrap(username, 200).size() * g.textLeading;
     
     float match_x = x+(prof_w/2);
@@ -410,20 +420,66 @@ class EnemyProfile
     }
     else
     {
-      fill(100);
+      fill(okcPrivateQ2);
     }
     
     if(player.questionsChanged() || firstDraw)
     {
+      int oldMatch = targetMatch;
       //This will be more complicated ideally
-      currMatch = getMatch();
       targetMatch = getMatch();
+      if(visible && targetMatch > oldMatch)
+      {
+        Random random = new Random();
+        String feedback = feedbacks[random.nextInt(feedbacks.length)];
+        setFeedback(feedback);
+      }
     }
     
-    String matchText = currMatch + "% Match";
+    if(currMatch != targetMatch)
+    {
+      if(tickFrames == currTick)
+      {
+        if(currMatch > targetMatch)
+        {
+          currMatch-=1;
+          currTick = 0;
+        }
+        else
+        {
+          currMatch+=1;
+          currTick=0;
+        }
+      }
+      else
+      {
+        currTick+=1;
+      }
+    }
+    else
+    {
+      currTick = 0;
+    }
+    
+    String matchText = "--% Match";
+    if(visible)
+    {
+      matchText = currMatch + "% Match";
+    }
     
     text(matchText, match_x, match_y);
     textAlign(CENTER);
+    
+    textFont(USERNAME_SUBTITLE_FONT);
+    textSize(16);
+    if(visible)
+    {
+      text("Visible",match_x,match_y+15);
+    }
+    else
+    {
+      text("Invisible",match_x,match_y+15);
+    }
     
     String lookingForDescription = "Looking for:";
     
@@ -459,9 +515,9 @@ class EnemyProfile
     textAlign(CENTER);
     
     float looking_x = x+50;
-    float looking_y = match_y + 30;
+    float looking_y = match_y + 40;
     
-    text(lookingForDescription,looking_x,looking_y,200,100);
+    text(lookingForDescription,looking_x,looking_y,200,200);
     
     //Now, essays
     float essay_x = x+310;
@@ -507,6 +563,13 @@ class EnemyProfile
     
     String buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((eIndex+1) + "/" + (essays.length),essay_x+200,essay_y+10);
     
     rect_x = essay_x + 400 - button_w;
     rect_y = essay_y;
@@ -597,6 +660,13 @@ class EnemyProfile
     
     buttonText = "<-";
     text(buttonText, rect_x+(button_w)/2, rect_y+(button_h)/2 + 5);
+    
+    textFont(TEXT_FONT);
+    fill(0);
+    textAlign(CENTER);
+    textSize(10);
+    
+    text((qIndex+1) + "/" + (questions.length),question_x+150,question_y+10);
     
      rect_x = question_x + 300 - button_w;
      rect_y = question_y;
