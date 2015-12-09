@@ -22,7 +22,7 @@ public class okc extends PApplet {
 
 
 
-Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true); //<>//
+Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},true);
 Question Q2 = new Question("Could you date someone who is androgynous?", new String[]{"Yes","No"}, true);
 Question Q3 = new Question("Is supporting \"the troops\" the same thing as supporting a war?", new String[]{"Yes","No","Not Sure"}, true);
 Question Q4 = new Question("Do you practice or believe in real magick, not to be confused with stage magic and parlor tricks?", new String[]{"Yes","No"}, true);
@@ -65,7 +65,7 @@ final int okcPrivateQ2 = color(148,154,167);
 final int green = color(0,192,0);
 final int red = color(248,55,18);
 final int red_mouseover = color(251,142,123);
-final int TIMER_LENGTH = 2 * 10 * 1000;
+final int TIMER_LENGTH = 2 * 60 * 1000;
 final String title = "OKCUPID: THE VIDEOGAME";
 final int screen_w = 1250;
 final int screen_h = 700;
@@ -1675,7 +1675,7 @@ public EnemyProfile make_jughead_muscle_carl(Profile target)
   
   //Now, Questions
   
-  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false); //<>//
+  Question Q1 = new Question("Have you ever been cruel to another person?", new String[]{"Yes","No"},false);
   
   Q1.selectYourChoice(1);
   Q1.selectTheirChoice(1);
@@ -2108,7 +2108,7 @@ public EnemyProfile make_Wicca_is_Sicca(Profile target)
 
 public void generatePopups(Demographics before, Demographics after)
 {
-  Random random = new Random(); //<>//
+  Random random = new Random();
   popups = new ArrayList<PopupMessage>();
   popupLocs = new ArrayList<float[]>();
   
