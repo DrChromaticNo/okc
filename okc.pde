@@ -456,7 +456,6 @@ void drawScreen6()
     
     text("vTHEMv",screen_w/2,370);
     
-    println("drawing enemy");
     enemy.drawAt(10,380);
     
     textFont(TIMER_FONT);
